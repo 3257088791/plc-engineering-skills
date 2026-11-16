@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2026 冰冰kong
+Copyright (c) 2026 PLC Engineering Skills contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,29 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+ADDITIONAL NOTICE (does not modify the license terms above)
+
+1. ENGINEERING RESPONSIBILITY
+   This Software generates design drafts, calculation sheets and PLC source
+   code intended for review by qualified automation engineers. It does not
+   constitute a safety assessment, a compliance certification, or an
+   acceptance conclusion. Safety-related functions (emergency stop, safety
+   doors, safety relays, interlocks) must be designed and verified
+   independently by competent personnel in accordance with the applicable
+   standards (e.g. ISO 13849, IEC 62061, IEC 60204-1 and local regulations).
+
+2. NO THIRD-PARTY CONTENT
+   This repository does not distribute any Siemens software, documentation,
+   device libraries or standards texts. References to TIA Portal, S7-1200 /
+   S7-1500, PLCSIM and similar product names are descriptive only; all
+   trademarks belong to their respective owners. Users must supply their own
+   licensed tools, device libraries and standard clause libraries.
+
+3. LIVE EQUIPMENT
+   Any download to a PLC, online value modification, forcing, or test on real
+   machinery changes physical behaviour and may cause injury or damage. Such
+   operations require explicit confirmation by the responsible site engineer
+   and must never be performed unattended.

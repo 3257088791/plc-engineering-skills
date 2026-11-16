@@ -1,0 +1,69 @@
+{
+  "_comment": "示例：换行业/换设备时只改本文件，不改脚本。所有键均可缺省。",
+  "naming": {
+    "fault": [
+      "fault",
+      "alarm",
+      "error",
+      "故障",
+      "报警"
+    ],
+    "latch": [
+      "latch",
+      "lock",
+      "锁存"
+    ],
+    "state": [
+      "step",
+      "seq",
+      "code",
+      "index",
+      "idx",
+      "count",
+      "步序",
+      "工步",
+      "编号"
+    ],
+    "hmi": [
+      "hmi",
+      "display",
+      "disp",
+      "画面",
+      "显示"
+    ],
+    "mode": [
+      "mode",
+      "auth",
+      "permit",
+      "enable",
+      "模式",
+      "权限",
+      "允许"
+    ],
+    "business": [
+      "full",
+      "empty",
+      "unpaid",
+      "满",
+      "无车",
+      "空位",
+      "未付",
+      "超限"
+    ]
+  },
+  "limits": {
+    "min_hold_ms": 100,
+    "timeout_keywords": [
+      "超时",
+      "未到位",
+      "timeout"
+    ]
+  },
+  "verdicts": [
+    "通过",
+    "失败",
+    "未执行",
+    "阻塞"
+  ],
+  "skip": []
+}
