@@ -8,7 +8,7 @@
 
 用法:
     python check_stage5.py --project D:\\proj
-    python check_stage5.py --project D:\\proj --results output/results.xlsx
+    python check_stage5.py --project D:\\proj --results output/05-sim-trace/results.xlsx
     python check_stage5.py --project D:\\proj --profile my_rules.json --json out.json
 
 规则一览（编号与 skills 附录 Z 对应）
@@ -77,7 +77,7 @@ def find_col(headers: list[str], keys: list[str]) -> str | None:
 
 def load_io_ids(project: Path) -> set[str]:
     out = set()
-    csv_p = project / "output" / "plc_tag_map.csv"
+    csv_p = project / "output" / "03-electrical" / "plc_tag_map.csv"
     if csv_p.is_file():
         with csv_p.open(encoding="utf-8-sig", newline="") as f:
             for r in csv.DictReader(f):
@@ -86,7 +86,7 @@ def load_io_ids(project: Path) -> set[str]:
                     out.add(v)
         if out:
             return out
-    xlsx = project / "output" / "io_address.xlsx"
+    xlsx = project / "output" / "03-electrical" / "io_address.xlsx"
     if xlsx.is_file():
         try:
             from openpyxl import load_workbook
@@ -114,7 +114,7 @@ def main() -> int:
     a = ap.parse_args()
 
     project = Path(a.project).expanduser().resolve()
-    steps = project / "output" / "test_steps.csv"
+    steps = project / "output" / "05-sim-trace" / "test_steps.csv"
     if not steps.is_file():
         print("FAIL")
         print(f" - 找不到 {steps}")

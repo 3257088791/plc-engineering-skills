@@ -35,8 +35,8 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 | 对象 | 权限 |
 |---|---|
 | 六个子技能文件及其输出 | 只读、只校验、只记录哈希；禁止编辑、重排、修复、覆盖、删除 |
-| `./output/flow_status.json` | 本技能唯一可写的状态文件 |
-| `./output/flow_shturl` | 本技能唯一可追加的日志文件 |
+| `./output/00-flow/flow_status.json` | 本技能唯一可写的状态文件 |
+| `./output/00-flow/flow_shturl` | 本技能唯一可追加的日志文件 |
 | `./output/` 目录 | 允许创建；不得代替子技能创建阶段交付物 |
 | 子技能输入文件 | 只读；禁止改写、移动、重命名 |
 
@@ -67,7 +67,7 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 | `fb_contract_path` | 无默认值 | 阶段4 功能块接口契约路径；`auto_simulate_customer=true` 且未提供时，由阶段4生成契约草案 |
 | `sim_channel` | `auto` | 阶段5 仿真通道口径：`auto` 现探测；`plcsim` 仅允许 PLCSIM 目标实例；`none` 直接按"未执行"处理（设计成果照出） |
 | `allow_untested_sim` | `true` | 阶段5 无通道/无授权时是否允许"全部未执行"通过门禁：`true` 放行但要标 `未执行` 并追加限定说明；`false` 则判 `blocked`，等通道 |
-| `stage6_stats_path` | `./output/_stage6/stats.json` | 阶段6 补充统计记录（工时/成本/一次性投入/基准）；缺失时对应指标 `待统计`，不阻塞 |
+| `stage6_stats_path` | `./input/stage6_stats.json` | 阶段6 补充统计记录（工时/成本/一次性投入/基准）；缺失时回退 `./output/06-eval-archive/inputs/stats.json`，仍缺失则对应指标 `待统计`，不阻塞 |
 | `run_mode` | `fresh` | `fresh` 新流程；`resume` 断点续跑 |
 
 ### 2.3 参数解析规则
@@ -141,24 +141,24 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 
 | 阶段 | 子技能 | 必需交付物 |
 |---|---|---|
-| 1 | `req-spec-01` | `./output/requirements_spec.xlsx`、`./output/clarification_shturl.md` |
-| 2 | `scheme-io-bom-02` | `./output/scheme.md`、`./output/io_list.xlsx`、`./output/bom.xlsx`、`./output/multi_check_report.md` |
-| 3 | `elec-construction-03` | `./output/io_address.xlsx`、`./output/loop_description.md`、`./output/cable_schedule.xlsx`、`./output/terminal_list.xlsx`、`./output/clause_check.xlsx`、`./output/drawing_data.json` |
-| 4 | `plc-scl-gen-04` | `./output/src/*.scl`（至少1个）、`./output/compilation_fix_shturl` |
-| 5 | `sim-trace-05` | `./output/test_steps.csv`、`./output/results.xlsx`、`./output/traceability_matrix.xlsx` |
-| 6 | `eval-archive-06` | `./output/project_evaluation_report.md`、`./output/quality_metrics_summary.xlsx`、`./output/project_archive_list.md` |
+| 1 | `req-spec-01` | `./output/01-requirements/requirements_spec.xlsx`、`./output/01-requirements/clarification_shturl.md` |
+| 2 | `scheme-io-bom-02` | `./output/02-scheme-io-bom/scheme.md`、`./output/02-scheme-io-bom/io_list.xlsx`、`./output/02-scheme-io-bom/bom.xlsx`、`./output/02-scheme-io-bom/multi_check_report.md` |
+| 3 | `elec-construction-03` | `./output/03-electrical/io_address.xlsx`、`./output/03-electrical/loop_description.md`、`./output/03-electrical/cable_schedule.xlsx`、`./output/03-electrical/terminal_list.xlsx`、`./output/03-electrical/clause_check.xlsx`、`./output/03-electrical/drawing_data.json` |
+| 4 | `plc-scl-gen-04` | `./output/04-scl/src/*.scl`（至少1个）、`./output/04-scl/compilation_fix_shturl` |
+| 5 | `sim-trace-05` | `./output/05-sim-trace/test_steps.csv`、`./output/05-sim-trace/results.xlsx`、`./output/05-sim-trace/traceability_matrix.xlsx` |
+| 6 | `eval-archive-06` | `./output/06-eval-archive/project_evaluation_report.md`、`./output/06-eval-archive/quality_metrics_summary.xlsx`、`./output/06-eval-archive/project_archive_list.md` |
 
 > 用户点名的“硬门禁文件”是每阶段的最低要求；上表是子技能契约的完整交付物。完整交付物缺失同样视为阶段输出不完整，必须终止。
 >
-> 阶段5/6 的过程证据（`./output/_stage5/`、`./output/_stage6/`）不是交付物，但阶段5 的 `00-说明` 覆盖率、阶段6 的 `eval_data.json` 指纹必须可回查；缺失时按证据不足处理（`E14_TRACE_UNREADABLE` / `E15_EVAL_UNREADABLE`），不得由编排层补算。
+> 阶段5/6 的过程证据（`./output/05-sim-trace/_work/`、`./output/06-eval-archive/_work/`）不是交付物，但阶段5 的 `00-说明` 覆盖率、阶段6 的 `eval_data.json` 指纹必须可回查；缺失时按证据不足处理（`E14_TRACE_UNREADABLE` / `E15_EVAL_UNREADABLE`），不得由编排层补算。
 
 ### 3.2 流程控制文件
 
 | 文件 | 说明 |
 |---|---|
-| `./output/flow_status.json` | 机器可读流程状态，原子写入，可追溯 |
-| `./output/flow_shturl` | 追加式全流程运行日志，无扩展名 |
-| `./output/_stage0/capabilities.json` | 阶段0 能力探测结果（TIA 版本/MCP 就绪/编码规则），阶段1~6 只读，不得各自猜测 |
+| `./output/00-flow/flow_status.json` | 机器可读流程状态，原子写入，可追溯 |
+| `./output/00-flow/flow_shturl` | 追加式全流程运行日志，无扩展名 |
+| `./output/00-flow/capabilities.json` | 阶段0 能力探测结果（TIA 版本/MCP 就绪/编码规则），阶段1~6 只读，不得各自猜测 |
 
 ### 3.3 禁止额外产物
 
@@ -168,16 +168,40 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 - 任何“修正版”“临时版”“备份版”阶段交付物；
 - 任何绕过子技能的替代输出。
 
+### 3.4 输出布局（staged v2.0）
+
+输出根固定 `./output/`，只允许以下 7 个阶段目录：
+
+```text
+output/
+├── 00-flow/
+├── 01-requirements/
+├── 02-scheme-io-bom/
+├── 03-electrical/
+├── 04-scl/
+├── 05-sim-trace/
+└── 06-eval-archive/
+```
+
+规则：
+
+1. `output/` 根目录不得出现散落交付物；只允许 7 个阶段目录和可选 `README.md`。
+2. 阶段0 只创建 `00-flow/`；阶段1~6 进入时创建自己的目录，不提前创建空目录。
+3. 每个交付物只放在本阶段目录；过程证据放本阶段 `_work/`；不得把上游文件复制到下游目录冒充输出。
+4. 阶段目录名是固定契约，不得改名、加空格、改大小写；不符合按 `E00_LAYOUT_INVALID`。
+5. 旧平铺文件（如 `output/requirements_spec.xlsx`）与新阶段文件同时存在，按 `E00_LAYOUT_CONFLICT`，要求先迁移。
+6. 状态/清单/报告中的路径必须是 POSIX 相对路径；绝对路径或 `..` 按 `E00_PATH_UNSAFE`。
+
 ---
 
 ## 4. 流程总览
 
 | 阶段 | 名称 | 子技能 | 启动前输入门禁 | 结束后输出门禁 |
 |---|---|---|---|---|
-| 0 | 前置准备 | 无 | 输出目录可创建；参数可解析；六个子技能可加载 | `flow_status.json`、`flow_shturl` 初始化成功；`./output/_stage0/capabilities.json` 已写入（见 §23.3） |
+| 0 | 前置准备 | 无 | 输出目录可创建；参数可解析；六个子技能可加载 | `flow_status.json`、`flow_shturl` 初始化成功；`./output/00-flow/capabilities.json` 已写入（见 §23.3）；输出布局符合 §3.4（仅 `00-flow/`，无旧平铺文件） |
 | 1 | 需求澄清与规格化 | `req-spec-01` | 客户原始需求文本非空；`auto_simulate_customer` 可解析 | `requirements_spec.xlsx` 有效；`clarification_shturl.md` 存在；需求状态可进入阶段2 |
 | 2 | 控制方案、IO与BOM生成 | `scheme-io-bom-02` | `requirements_spec.xlsx`、`device_library.xlsx` 存在且非空 | 四个交付物存在且非空；表头正确；自检总体结论为通过 |
-| 3 | 电气施工设计与强条自检 | `elec-construction-03` | `io_list.xlsx`、`bom.xlsx`、`clause_library.xlsx` 存在且非空 | 六个交付物存在且非空；表头正确；无强条不通过/待人工判定；`plc_tag_map.csv` 存在且行数=地址表行数（过程产物，阶段4 依赖） |
+| 3 | 电气施工设计与强条自检 | `elec-construction-03` | `io_list.xlsx`、`bom.xlsx`、`clause_library.xlsx` 存在且非空 | 六个交付物存在且非空；表头正确；无强条不通过/待人工判定；`plc_tag_map.csv` 存在且行数=地址表行数，`plc_tag_table.xml` 存在且标签数=非HMI行数（过程产物，阶段4 依赖） |
 | 4 | SCL控制程序生成与编译闭环 | `plc-scl-gen-04` | `io_address.xlsx`、DB定义、接口契约存在且非空 | `src/` 至少1个非空 `.scl`；编译日志存在；编译最终结论可判定 |
 | 5 | 仿真验证与全链路追溯 | `sim-trace-05` | 阶段4成功；`requirements_spec.xlsx`、`drawing_data.json`、`compilation_fix_shturl`、`src/*.scl` 存在且可读；`sim_channel` 已解析 | 三份交付物存在；表头 8/8/9 列逐字匹配（见 §12.3）；判定词合法；综合追溯覆盖率=100%；无 `失败` 用例（或按 §12.3 判定） |
 | 6 | 端到端综合评估与归档 | `eval-archive-06` | 阶段5成功；阶段1~5 交付物齐全；`stats` 可选 | 三份交付物存在；xlsx 5 张表齐全；数值可回指 `eval_data.json` 指纹；结论词合法；归档缺失项已列 |
@@ -189,6 +213,7 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 3. 阶段 N 失败，后续阶段全部保持 `pending`，不得预执行。
 4. 阶段 1 若进入等待客户澄清，流程暂停；不得继续阶段2。
 5. 阶段5/6 是"验证与评估"环节，不得反向修改阶段1~4 的任何交付物；发现问题只能输出问题清单与归属阶段建议。
+6. 所有阶段输出必须位于 §3.4 规定的本阶段目录；Gx-01 文件完整性检查前先校验路径归属，失败按 `E00_LAYOUT_INVALID`。
 
 ---
 
@@ -218,7 +243,19 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 
 ```json
 {
-  "schema_version": "1.0",
+  "schema_version": "2.0",
+  "layout_version": "2.0",
+  "output_layout": "staged",
+  "output_root": "./output",
+  "stage_dirs": {
+    "0": "00-flow",
+    "1": "01-requirements",
+    "2": "02-scheme-io-bom",
+    "3": "03-electrical",
+    "4": "04-scl",
+    "5": "05-sim-trace",
+    "6": "06-eval-archive"
+  },
   "flow_id": "FLOW-20261113-223000-A1B2",
   "created_at": "2026-11-13T22:30:00+08:00",
   "updated_at": "2026-11-13T22:30:00+08:00",
@@ -236,7 +273,7 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
     "fb_contract_path": null,
     "sim_channel": "auto",
     "allow_untested_sim": true,
-    "stage6_stats_path": "./output/_stage6/stats.json",
+    "stage6_stats_path": "./input/stage6_stats.json",
     "run_mode": "fresh"
   },
   "simulation": {
@@ -352,13 +389,15 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 
 ### 5.3 字段规则
 
+- `layout_version`：固定 `2.0`；与技能契约不一致时 `E00_LAYOUT_VERSION`，不得续跑。
+- `stage_dirs`：阶段号到目录名的映射；必须与 §3.4 一致，缺失/改名按 `E00_LAYOUT_INVALID`。
 - `flow_id`：`FLOW-YYYYMMDD-HHMMSS-XXXX`，一次流程唯一；续跑复用原 ID。
 - 时间：ISO 8601，带本地时区；阶段开始/结束必须成对记录。
 - `duration_sec`：结束时间减开始时间，保留整数秒；失败阶段也要记录。
 - `inputs` / `outputs`：数组，每项至少包含：
   ```json
   {
-    "path": "./output/requirements_spec.xlsx",
+    "path": "./output/01-requirements/requirements_spec.xlsx",
     "exists": true,
     "size_bytes": 12345,
     "sha256": "…",
@@ -371,7 +410,7 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
   ```json
   {
     "check_id": "G1-HEADER",
-    "target": "./output/requirements_spec.xlsx",
+    "target": "./output/01-requirements/requirements_spec.xlsx",
     "expected": "六列表头完全匹配",
     "actual": "匹配",
     "passed": true,
@@ -382,11 +421,12 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 - `errors`：本阶段错误对象数组；格式见 15.1。
 - `baseline`：阶段0记录的所有预期交付物初始快照；键为相对路径，值为 `{exists,size_bytes,sha256,mtime}`；用于判断阶段是否真的产出新文件。
 - `artifacts`：已生成交付物的快照；键为相对路径，值为 `{sha256,size_bytes,mtime,stage}`；只记录，不修改文件。
+- `baseline`/`artifacts` 的键必须使用 POSIX 相对路径（如 `output/01-requirements/requirements_spec.xlsx`），不得使用绝对路径或反斜杠。
 - `completion_scope`：
   - `compile_checked`：阶段4编译最终结论为通过（仅语法/接口）；
   - `source_only`：阶段4源码已生成，但编译未执行；
   - `null`：未完成；
-  - 后缀：含模拟裁决追加 `+simulated`；阶段5全部/部分 `未执行` 追加 `+untested`；阶段6有 `待统计` 或归档缺失追加 `+eval_partial`。后缀顺序固定为 `+simulated` → `+untested` → `+eval_partial`（如 `source_only+simulated+untested+eval_partial`）。
+  - 后缀：含模拟裁决追加 `+simulated`；阶段4未做冒烟追加 `+logic_unverified`；阶段5全部/部分 `未执行` 追加 `+untested`；阶段6有 `待统计` 或归档缺失追加 `+eval_partial`。后缀顺序固定为 `+simulated` → `+logic_unverified` → `+untested` → `+eval_partial`（如 `source_only+simulated+logic_unverified+untested+eval_partial`）。
   - 禁止把 `+untested` 写成"已验证"，禁止把 `+eval_partial` 写成"评估完成"。
 - `test_scope`：阶段5结束时写入 `full`/`partial`/`not_executed`/`failed`；阶段5未执行时为 `null`。
 - `eval_scope`：阶段6结束时写入 `complete`/`partial`；阶段6未执行时为 `null`。
@@ -411,7 +451,7 @@ whenToUse: "当用户要求从客户原始需求开始端到端跑完自动化�
 `flow_status.json` 必须“写临时文件→`os.replace`”原子替换，禁止边写边覆盖导致半截 JSON。每次更新后立即校验：
 
 ```python
-json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
+json.loads(Path("./output/00-flow/flow_status.json").read_text(encoding="utf-8"))
 ```
 
 校验失败按 `E00_STATUS_WRITE` 终止；不得继续调度。
@@ -429,7 +469,9 @@ json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
 - flow_id: FLOW-20261113-223000-A1B2
 - started_at: 2026-11-13T22:30:00+08:00
 - cwd: <项目根绝对路径>
-- schema: auto-flow-master-00/1.0
+- schema: auto-flow-master-00/2.0
+- layout_version: 2.0
+- output_layout: staged
 - auto_simulate_customer: true
 - device_library_path: ./device_library.xlsx
 - clause_library_path: ./clause_library.xlsx
@@ -437,7 +479,7 @@ json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
 - fb_contract_path: <未提供或路径>
 - sim_channel: auto
 - allow_untested_sim: true
-- stage6_stats_path: ./output/_stage6/stats.json
+- stage6_stats_path: ./input/stage6_stats.json
 - run_mode: fresh
 ```
 
@@ -476,7 +518,7 @@ json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
 3. 不得只写“失败”“成功”而不写证据；不得伪造未执行的检查。
 4. 日志只追加，不重写历史；续跑时先追加 `RESUME`，保留原记录。
 5. 不记录隐藏推理过程；只记录可观察事实、文件、哈希、结论。
-6. 日志文件无扩展名，路径固定 `./output/flow_shturl`。
+6. 日志文件无扩展名，路径固定 `./output/00-flow/flow_shturl`。
 
 ---
 
@@ -485,9 +527,11 @@ json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
 ### 7.1 执行步骤
 
 1. 确认当前工作目录；所有固定路径相对当前目录。
-2. 创建输出目录：
-   - POSIX：`mkdir -p ./output`
-   - Windows PowerShell：`New-Item -ItemType Directory -Force -Path .\output | Out-Null`
+2. 创建输出根与流程目录：
+   - POSIX：`mkdir -p ./output/00-flow`
+   - Windows PowerShell：`New-Item -ItemType Directory -Force -Path .\output\00-flow | Out-Null`
+   - 阶段0 只创建 `00-flow/`；阶段1~6 目录在各自阶段启动时创建。
+   - 若 `output/` 根目录存在旧平铺交付物（如 `output/requirements_spec.xlsx`），按 `E00_LAYOUT_CONFLICT` 终止，要求先迁移；不得手工删除。
 3. 解析全局参数（见 2.3），生成 `flow_id`。
 4. 检查六个子技能是否可加载：`req-spec-01`、`scheme-io-bom-02`、`elec-construction-03`、`plc-scl-gen-04`、`sim-trace-05`、`eval-archive-06`。
    - 任一不可加载：`E11_SUBSKILL_MISSING`，终止，不启动阶段1。
@@ -501,13 +545,15 @@ json.loads(Path("./output/flow_status.json").read_text(encoding="utf-8"))
 
 以下任一情况立即终止：
 
-- 输出目录无法创建或不可写；
+- 输出根 `./output/` 或 `00-flow/` 无法创建/不可写；
+- 发现旧平铺交付物或跨阶段重复文件（`E00_LAYOUT_CONFLICT`）；
+- `flow_status.layout_version` 不是 `2.0`（`E00_LAYOUT_VERSION`）；
 - `auto_simulate_customer` 无法解析；
 - 输出路径被用户改成非 `./output/`；
 - 六个子技能任一不可加载（`req-spec-01`、`scheme-io-bom-02`、`elec-construction-03`、`plc-scl-gen-04`、`sim-trace-05`、`eval-archive-06`）；
 - `flow_status.json` 初始化后无法通过 JSON 解析。
 
-错误码 `E00_PREFLIGHT` / `E00_INVALID_PARAM` / `E11_SUBSKILL_MISSING`。
+错误码 `E00_PREFLIGHT` / `E00_INVALID_PARAM` / `E00_LAYOUT_INVALID` / `E00_LAYOUT_CONFLICT` / `E00_LAYOUT_VERSION` / `E00_PATH_UNSAFE` / `E11_SUBSKILL_MISSING`。
 
 ---
 
@@ -558,8 +604,8 @@ auto_simulate_customer: <true|false>
 
 #### G1-01 必需文件
 
-- `./output/requirements_spec.xlsx` 存在、是文件、大小 > 0；
-- `./output/clarification_shturl.md` 存在、是文件、大小 > 0；
+- `./output/01-requirements/requirements_spec.xlsx` 存在、是文件、大小 > 0；
+- `./output/01-requirements/clarification_shturl.md` 存在、是文件、大小 > 0；
 - `fresh` 模式下，`requirements_spec.xlsx` 必须相对 `baseline` 为新建或 SHA-256 变化；否则 `E10_STALE_OUTPUT`。
 
 #### G1-02 xlsx 可读与表头
@@ -652,13 +698,13 @@ REQ-ID | 需求内容 | 验收准则 | 优先级 | 关联IO占位 | 状态
 ```text
 执行 scheme-io-bom-02。
 输入：
-- ./output/requirements_spec.xlsx
+- ./output/01-requirements/requirements_spec.xlsx
 - ./device_library.xlsx
 输出：
-- ./output/scheme.md
-- ./output/io_list.xlsx
-- ./output/bom.xlsx
-- ./output/multi_check_report.md
+- ./output/02-scheme-io-bom/scheme.md
+- ./output/02-scheme-io-bom/io_list.xlsx
+- ./output/02-scheme-io-bom/bom.xlsx
+- ./output/02-scheme-io-bom/multi_check_report.md
 上下文注记：<若阶段1使用模拟回答，写明“阶段1含模拟回答，非客户正式确认”>
 要求：
 1. 严格按子技能执行；只使用器件库，不得编造型号/价格/参数。
@@ -673,10 +719,10 @@ REQ-ID | 需求内容 | 验收准则 | 优先级 | 关联IO占位 | 状态
 
 四个文件都存在、是文件、大小 > 0：
 
-- `./output/scheme.md`
-- `./output/io_list.xlsx`
-- `./output/bom.xlsx`
-- `./output/multi_check_report.md`
+- `./output/02-scheme-io-bom/scheme.md`
+- `./output/02-scheme-io-bom/io_list.xlsx`
+- `./output/02-scheme-io-bom/bom.xlsx`
+- `./output/02-scheme-io-bom/multi_check_report.md`
 - `fresh` 模式下，`io_list.xlsx` 或 `bom.xlsx` 至少一个相对 `baseline` 为新建或 SHA-256 变化；否则 `E10_STALE_OUTPUT`。
 
 #### G2-02 表头
@@ -746,16 +792,16 @@ BOM-ID | 类别 | 名称 | 型号 | 数量 | 单价 | 小计 | 供应商 | 关�
 ```text
 执行 elec-construction-03。
 输入：
-- ./output/io_list.xlsx
-- ./output/bom.xlsx
+- ./output/02-scheme-io-bom/io_list.xlsx
+- ./output/02-scheme-io-bom/bom.xlsx
 - ./clause_library.xlsx
 输出：
-- ./output/io_address.xlsx
-- ./output/loop_description.md
-- ./output/cable_schedule.xlsx
-- ./output/terminal_list.xlsx
-- ./output/clause_check.xlsx
-- ./output/drawing_data.json
+- ./output/03-electrical/io_address.xlsx
+- ./output/03-electrical/loop_description.md
+- ./output/03-electrical/cable_schedule.xlsx
+- ./output/03-electrical/terminal_list.xlsx
+- ./output/03-electrical/clause_check.xlsx
+- ./output/03-electrical/drawing_data.json
 要求：
 1. 严格按子技能执行；地址分配、回路、电缆、端子、强条判定均以子技能规则为准。
 2. 不得编造器件参数、电缆参数、短路电流、标准条款或设计证据。
@@ -769,12 +815,12 @@ BOM-ID | 类别 | 名称 | 型号 | 数量 | 单价 | 小计 | 供应商 | 关�
 
 六个文件都存在、是文件、大小 > 0：
 
-- `./output/io_address.xlsx`
-- `./output/loop_description.md`
-- `./output/cable_schedule.xlsx`
-- `./output/terminal_list.xlsx`
-- `./output/clause_check.xlsx`
-- `./output/drawing_data.json`
+- `./output/03-electrical/io_address.xlsx`
+- `./output/03-electrical/loop_description.md`
+- `./output/03-electrical/cable_schedule.xlsx`
+- `./output/03-electrical/terminal_list.xlsx`
+- `./output/03-electrical/clause_check.xlsx`
+- `./output/03-electrical/drawing_data.json`
 - `fresh` 模式下，`io_address.xlsx`、`cable_schedule.xlsx`、`terminal_list.xlsx` 至少一个相对 `baseline` 为新建或 SHA-256 变化；否则 `E10_STALE_OUTPUT`。
 
 #### G3-02 表头
@@ -782,13 +828,13 @@ BOM-ID | 类别 | 名称 | 型号 | 数量 | 单价 | 小计 | 供应商 | 关�
 `io_address.xlsx` 表头必须完全等于：
 
 ```text
-IO-ID | 信号名 | 类型 | 物理地址 | 地址区 | 字节位 | 设备标签 | 备用标志 | 关联REQ-ID | 回路号 | 关联BOM-ID | 地址版本 | 备注
+IO-ID | 信号名 | PLC符号 | 类型 | 物理地址 | 方向 | 地址区 | 字节位 | 设备标签 | 备用标志 | NC语义 | 关联REQ-ID | 回路号 | 关联BOM-ID | 地址版本 | 备注
 ```
 
 `terminal_list.xlsx` 表头必须完全等于：
 
 ```text
-TERM-ID | 端子排 | 端子号 | 线号 | 信号名称 | 导线截面 | 颜色 | 对接端子
+TERM-ID | 端子排 | 端子号 | 线号 | IO-ID | 回路号 | 信号名称 | 导线截面 | 颜色 | 对接端子
 ```
 
 `clause_check.xlsx` 表头必须完全等于：
@@ -848,6 +894,7 @@ CLAUSE-ID | 标准编号 | 条款摘要 | 适用性 | 设计证据 | 初步判�
 | `io_address.xlsx` | 存在、非空、可读 | `E07_IO_ADDRESS_MISSING`，终止 |
 | `db_definition_path` | 已提供且路径存在；或 `auto_simulate_customer=true` 时允许缺失 | `E07_DB_CONTRACT_MISSING`，终止（仅 `false` 时） |
 | `fb_contract_path` | 已提供且路径存在；或 `auto_simulate_customer=true` 时允许缺失 | `E07_DB_CONTRACT_MISSING`，终止（仅 `false` 时） |
+| TIA 工程对象（仅编译时） | 进入 TIA 导入/编译时：全局 DB、OB1、tag 表存在且可读（`GetProjectTree`/`GetBlocks`）；仅源码模式可缺省 | `E07_PROJECT_OBJECT_MISSING`，`blocked` |
 | 子技能 | `plc-scl-gen-04` 可加载 | `E11_SUBSKILL_MISSING`，终止 |
 
 若 DB 定义或接口契约未提供，错误信息必须原样包含：
@@ -866,7 +913,7 @@ fb_contract_path: AUTO_DRAFT
 auto_simulate_customer: true
 ```
 
-由阶段4按 §2.1/§2.2 生成契约草案，并在输出中落盘为 `./output/db_definitions.xlsx` 与 `./output/interface_contract.md`（每处标 `【模拟契约】`）。同时必须：
+由阶段4按 §2.1/§2.2 生成契约草案，并在输出中落盘为 `./output/04-scl/db_definitions.xlsx` 与 `./output/04-scl/interface_contract.md`（每处标 `【模拟契约】`）。同时必须：
 
 - 在 `flow_status.json` 记录 `gate.checks[].simulated=true` 与草案路径；
 - 把“DB/FB 契约为模拟草案，须在 TIA 侧按真实项目复核”写入 `completion_caveats`；
@@ -879,15 +926,15 @@ auto_simulate_customer: true
 ```text
 执行 plc-scl-gen-04。
 输入：
-- ./output/io_address.xlsx
+- ./output/03-electrical/io_address.xlsx
 - DB数据块定义：<db_definition_path>
 - 功能块接口契约：<fb_contract_path>
 - auto_simulate_customer: <true|false>
 输出：
-- ./output/src/*.scl
-- ./output/compilation_fix_shturl
-- （模拟模式追加）./output/plc_tag_map.csv
-- （模拟模式且契约缺失）./output/db_definitions.xlsx、./output/interface_contract.md（草案，逐条标【模拟契约】）
+- ./output/04-scl/src/*.scl
+- ./output/04-scl/compilation_fix_shturl
+- ./output/03-electrical/plc_tag_map.csv、./output/03-electrical/plc_tag_table.xml（阶段3 已产出，阶段4 只读引用）
+- （模拟模式且契约缺失）./output/04-scl/db_definitions.xlsx、./output/04-scl/interface_contract.md（草案，逐条标【模拟契约】）
 要求：
 1. 严格按子技能执行；不得修改 IO 表、DB 定义、接口契约。
 2. 不得新增变量/DB/接口/块；缺契约项停止，不猜。
@@ -901,7 +948,7 @@ auto_simulate_customer: true
 
 #### G4-01 源码文件
 
-- `./output/src/` 存在且为目录；
+- `./output/04-scl/src/` 存在且为目录；
 - 至少 1 个 `.scl` 文件；
 - 每个 `.scl` 文件大小 > 0；
 - 不得只生成 `.txt`/`.csv`/空文件冒充 `.scl`；
@@ -910,7 +957,7 @@ auto_simulate_customer: true
 
 #### G4-02 编译日志
 
-- `./output/compilation_fix_shturl` 存在、是文件、大小 > 0；
+- `./output/04-scl/compilation_fix_shturl` 存在、是文件、大小 > 0；
 - 文件无扩展名，路径不得改成 `.md`/`.log`；
 - `fresh` 模式下，日志必须相对 `baseline` 为新建或 SHA-256 变化；否则 `E10_STALE_OUTPUT`。
 
@@ -954,10 +1001,10 @@ auto_simulate_customer: true
 | 检查 | 通过条件 | 失败处理 |
 |---|---|---|
 | 阶段4已成功 | 阶段4 `status=success` | `E14_PREV_STAGE`，终止 |
-| `./output/requirements_spec.xlsx` | 存在、非空、可读；六列表头逐字一致；至少 1 条 `已确认` 或 `【模拟回答】` | `E14_REQ_SPEC_INVALID`，终止 |
-| `./output/drawing_data.json` | UTF-8 可解析；含 `requirements/io/addresses/bom/terminals/traceability` 键 | `E14_SSOT_INVALID`，终止 |
-| `./output/compilation_fix_shturl` | 存在、非空；最终结论为 `编译通过` 或 `编译未执行` | `E14_COMPILE_LOG_INVALID`，终止 |
-| `./output/src/*.scl` | 至少 1 个非空 `.scl` | `E14_SOURCE_MISSING`，终止 |
+| `./output/01-requirements/requirements_spec.xlsx` | 存在、非空、可读；六列表头逐字一致；至少 1 条 `已确认` 或 `【模拟回答】` | `E14_REQ_SPEC_INVALID`，终止 |
+| `./output/03-electrical/drawing_data.json` | UTF-8 可解析；含 `requirements/io/addresses/bom/terminals/traceability` 键 | `E14_SSOT_INVALID`，终止 |
+| `./output/04-scl/compilation_fix_shturl` | 存在、非空；最终结论为 `编译通过` 或 `编译未执行` | `E14_COMPILE_LOG_INVALID`，终止 |
+| `./output/04-scl/src/*.scl` | 至少 1 个非空 `.scl` | `E14_SOURCE_MISSING`，终止 |
 | `sim_channel` | ∈ `{auto, plcsim, none}` | `E00_INVALID_PARAM`，终止 |
 | 子技能 | `sim-trace-05` 可加载 | `E11_SUBSKILL_MISSING`，终止 |
 
@@ -976,15 +1023,15 @@ auto_simulate_customer: true
 ```text
 执行 sim-trace-05。
 输入：
-- ./output/requirements_spec.xlsx
-- ./output/drawing_data.json
-- ./output/compilation_fix_shturl
-- ./output/src/*.scl
-- ./output/code_req_map.csv（存在则用）
+- ./output/01-requirements/requirements_spec.xlsx
+- ./output/03-electrical/drawing_data.json
+- ./output/04-scl/compilation_fix_shturl
+- ./output/04-scl/src/*.scl
+- ./output/04-scl/code_req_map.csv（存在则用）
 输出：
-- ./output/test_steps.csv
-- ./output/results.xlsx
-- ./output/traceability_matrix.xlsx
+- ./output/05-sim-trace/test_steps.csv
+- ./output/05-sim-trace/results.xlsx
+- ./output/05-sim-trace/traceability_matrix.xlsx
 sim_channel: <auto|plcsim|none>
 allow_untested_sim: <true|false>
 上下文注记：<若上游含模拟回答/模拟裁决，写“本项目含模拟裁决，非客户/工程师正式确认，复核前不得作为设计依据”>
@@ -1009,9 +1056,9 @@ allow_untested_sim: <true|false>
 
 三份交付物都存在、是文件、大小 > 0：
 
-- `./output/test_steps.csv`
-- `./output/results.xlsx`
-- `./output/traceability_matrix.xlsx`
+- `./output/05-sim-trace/test_steps.csv`
+- `./output/05-sim-trace/results.xlsx`
+- `./output/05-sim-trace/traceability_matrix.xlsx`
 - `fresh` 模式下，三者相对 `baseline` 至少有一个为新建或 SHA-256 变化；否则 `E10_STALE_OUTPUT`。
 - 缺失/为空/过期：`E14_OUTPUT_MISSING`，`failed`。
 
@@ -1093,7 +1140,7 @@ allow_untested_sim: <true|false>
 
 #### G5-07 子技能一致性自检
 
-1. 必须从 `sim-trace-05/assets/validate_stage5.py` 复制到 `./output/_stage5/` 后运行；复制前用 `sim-trace-05/assets/SHA256SUMS.txt` 比对哈希，不一致即 `E14_SELFCHECK_FAIL`。首行输出为 `PASS` **且**退出码为 `0` 才通过。
+1. 必须从 `sim-trace-05/assets/validate_stage5.py` 复制到 `./output/05-sim-trace/_work/` 后运行；复制前用 `sim-trace-05/assets/SHA256SUMS.txt` 比对哈希，不一致即 `E14_SELFCHECK_FAIL`。首行输出为 `PASS` **且**退出码为 `0` 才通过。
 2. 输出为 `FAIL`、退出码非 `0`、脚本缺失或无法运行 → `E14_SELFCHECK_FAIL`，`failed`，把校验器的 `- ` 开头明细写进错误证据。
 3. 校验失败必须回到子技能对应步骤修正，**不得改校验口径**、不得删除校验项来"通过"。
 
@@ -1138,11 +1185,11 @@ allow_untested_sim: <true|false>
 - 补充统计记录：<stage6_stats_path 或“未提供”>
 - ./device_library.xlsx（可选）
 输出：
-- ./output/project_evaluation_report.md
-- ./output/quality_metrics_summary.xlsx
-- ./output/project_archive_list.md
+- ./output/06-eval-archive/project_evaluation_report.md
+- ./output/06-eval-archive/quality_metrics_summary.xlsx
+- ./output/06-eval-archive/project_archive_list.md
 要求：
-1. 严格按子技能执行；先跑 stage6_collect.py → stage6_render.py → validate_stage6.py（脚本在技能 assets/，复制到 ./output/_stage6/ 后运行）。
+1. 严格按子技能执行；先跑 stage6_collect.py → stage6_render.py → validate_stage6.py（脚本在技能 assets/，复制到 ./output/06-eval-archive/_work/ 后运行）。
 2. 所有数值只能来自 eval_data.json；缺源写 `待统计` 并说明缺什么，禁止 0 填、禁止估值。
 3. 结论只用 `评估完成`/`评估不完整`；禁止 `验收通过`、`项目合格`、`安全合规` 等判定性表述。
 4. 归档按 17 项逐条核对，缺失项必须列出路径与补齐指引；六类节点覆盖单独成段。
@@ -1153,7 +1200,7 @@ allow_untested_sim: <true|false>
 
 #### G6-01 文件完整性
 
-- `./output/project_evaluation_report.md`、`./output/quality_metrics_summary.xlsx`、`./output/project_archive_list.md` 均存在、是文件、大小 > 0；
+- `./output/06-eval-archive/project_evaluation_report.md`、`./output/06-eval-archive/quality_metrics_summary.xlsx`、`./output/06-eval-archive/project_archive_list.md` 均存在、是文件、大小 > 0；
 - 三者相对 `baseline` 至少有一个新建或 SHA-256 变化，否则 `E10_STALE_OUTPUT`；
 - 缺失/为空/过期：`E15_OUTPUT_MISSING`，`failed`。
 
@@ -1172,7 +1219,7 @@ allow_untested_sim: <true|false>
 
 #### G6-04 数值可回指与一致性
 
-1. `./output/_stage6/eval_data.json` 必须存在且可 `json.loads`；缺失/损坏/指纹与报告不符 → `E15_EVAL_UNREADABLE`，`failed`。
+1. `./output/06-eval-archive/_work/eval_data.json` 必须存在且可 `json.loads`；缺失/损坏/指纹与报告不符 → `E15_EVAL_UNREADABLE`，`failed`。
 2. 抽查 3 处报告数值（工时合计、直接成本合计、综合追溯覆盖率），必须与 `eval_data.json` 同名字段一致；不一致 → `E15_EVAL_INCONSISTENT`，`failed`。
 3. 报告中 `待统计` 出现次数与 `01-指标台账` 中 `待统计` 行数相差 > 1 → `E15_EVAL_INCONSISTENT`，`failed`。
 
@@ -1287,8 +1334,8 @@ allow_untested_sim: <true|false>
   "code": "E14_TEST_FAILED",
   "stage": 5,
   "message": "阶段5存在失败用例：TEST-002-01 期望 IO-010=1 实际 0",
-  "evidence": ["./output/results.xlsx#02-问题定位", "./output/_stage5/sim_run.json"],
-  "artifacts": ["./output/test_steps.csv", "./output/results.xlsx", "./output/traceability_matrix.xlsx"],
+  "evidence": ["./output/05-sim-trace/results.xlsx#02-问题定位", "./output/05-sim-trace/_work/sim_run.json"],
+  "artifacts": ["./output/05-sim-trace/test_steps.csv", "./output/05-sim-trace/results.xlsx", "./output/05-sim-trace/traceability_matrix.xlsx"],
   "next_action": "按问题定位清单的归属阶段修复后从阶段N续跑；编排层不代为修改"
 }
 ```
@@ -1300,6 +1347,10 @@ allow_untested_sim: <true|false>
 | `E00_PREFLIGHT` | 0 | 输出目录/可写性/初始化失败 | `failed` |
 | `E00_INVALID_PARAM` | 0 | 布尔参数/路径/`sim_channel` 非法 | `failed` |
 | `E00_STATUS_WRITE` | 任意 | 状态文件写入或解析失败 | `failed` |
+| `E00_LAYOUT_INVALID` | 0/任意 | 阶段目录缺失/命名错误/文件放错阶段/根目录有散落交付物 | `failed` |
+| `E00_LAYOUT_CONFLICT` | 0/任意 | 旧平铺文件与新阶段文件并存，或同一交付物出现在两个阶段目录 | `failed` |
+| `E00_LAYOUT_VERSION` | 0/续跑 | `flow_status.layout_version` 不是 `2.0`，未迁移 | `blocked` |
+| `E00_PATH_UNSAFE` | 任意 | 状态/清单/报告出现绝对路径或 `..` | `failed` |
 | `E01_MISSING_CUSTOMER_TEXT` | 1 | 客户原始文本为空 | `failed` |
 | `E01_MISSING_PARAM` | 1 | 子技能返回 `【缺少参数：...】` | `failed` |
 | `E02_SPEC_INVALID` | 1 | xlsx 不存在/表头/ID/状态/数据行不合格 | `failed` |
@@ -1324,6 +1375,7 @@ allow_untested_sim: <true|false>
 | `E07_IO_ADDRESS_MISSING` | 4 | `io_address.xlsx` 缺失/无效 | `failed` |
 | `E07_DB_CONTRACT_MISSING` | 4 | DB/接口契约路径缺失或不存在 | `blocked` |
 | `E07_PROJECT_MISSING` | 4 | 无可用 TIA 项目（未 OpenProject/Attach），无法读取真实 CPU/tag/DB | `blocked` |
+| `E07_PROJECT_OBJECT_MISSING` | 4 | 全局 DB/OB1/tag 表缺失或不可读，无法进入编译 | `blocked` |
 | `E08_ENCODING_MOJIBAKE` | 4 | 导入后回读中文注释出现 GBK 误解码或与源文不一致 | `failed` |
 | `E08_COMPILE_FAILED` | 4 | 编译失败/超3轮/残余错误 | `failed` |
 | `E08_COMPILE_BLOCKED` | 4 | 编译待人工/阻塞 | `blocked` |
@@ -1394,7 +1446,7 @@ allow_untested_sim: <true|false>
 
 ### 16.2 续跑 `resume`
 
-1. 读取已有 `./output/flow_status.json`，校验 `schema_version`、`flow_id`、`cwd`、`total_stages=6`。
+1. 读取已有 `./output/00-flow/flow_status.json`，校验 `schema_version`、`layout_version=2.0`、`flow_id`、`cwd`、`total_stages=6`；布局版本不符按 `E00_LAYOUT_VERSION`，要求先迁移。
 2. 对已标记 `success` 的阶段，重新计算其输出哈希；与状态文件记录不一致 → `E13_ARTIFACT_CHANGED`，不得直接信任旧状态。
 3. 找到第一个非 `success` 阶段：
    - `waiting_customer`：从阶段1重新进入，读取客户新回复；
@@ -1417,6 +1469,8 @@ allow_untested_sim: <true|false>
 ### 17.1 通用
 
 - 使用 `pathlib.Path`；不要用字符串拼接路径。
+- 所有路径必须解析到 `output/<stage-dir>/`；绝对路径或 `..` 按 `E00_PATH_UNSAFE`。
+- 状态/清单中的路径键使用 POSIX 相对路径（`as_posix()`），不得写反斜杠。
 - 文件存在且 `is_file()`；大小 `stat().st_size > 0`。
 - 读取文本统一 UTF-8；遇到编码错误按 `E0x_UNREADABLE` 终止。
 - 哈希使用 SHA-256，分块读取；记录到 `artifacts`。
@@ -1448,9 +1502,9 @@ allow_untested_sim: <true|false>
 - 阶段1：`requirements_spec.xlsx`、`clarification_shturl.md`；
 - 阶段2：`scheme.md`、`io_list.xlsx`、`bom.xlsx`、`multi_check_report.md`；
 - 阶段3：六个交付物；
-- 阶段4：所有 `.scl`、`compilation_fix_shturl`；模拟模式下另加 `plc_tag_map.csv`，以及生成过的 `db_definitions.xlsx`、`interface_contract.md`（草案，标注为模拟交付物）；
-- 阶段5：`test_steps.csv`、`results.xlsx`、`traceability_matrix.xlsx`（过程证据 `_stage5/` 不入哈希集，但覆盖率数值必须与 `00-说明` 一致）；
-- 阶段6：`project_evaluation_report.md`、`quality_metrics_summary.xlsx`、`project_archive_list.md`（`_stage6/eval_data.json` 不进 `artifacts` 哈希集，其指纹写入报告附录 A，用于回指核对）；
+- 阶段4：所有 `.scl`、`compilation_fix_shturl`；阶段3 已产出的 `plc_tag_map.csv`、`plc_tag_table.xml` 只读引用，模拟模式下另加 fallback `plc_tag_map.fallback.csv`，以及生成过的 `db_definitions.xlsx`、`interface_contract.md`（草案，标注为模拟交付物）；
+- 阶段5：`test_steps.csv`、`results.xlsx`、`traceability_matrix.xlsx`（过程证据 `05-sim-trace/_work/` 不入哈希集，但覆盖率数值必须与 `00-说明` 一致）；
+- 阶段6：`project_evaluation_report.md`、`quality_metrics_summary.xlsx`、`project_archive_list.md`（`06-eval-archive/_work/eval_data.json` 不进 `artifacts` 哈希集，其指纹写入报告附录 A，用于回指核对）；
 - 控制文件：`flow_status.json`、`flow_shturl` 不放入 `artifacts` 的哈希校验集，避免状态文件自引用和日志追加导致 `E13` 误报；在日志中记录其路径、大小和最后写入时间。
 
 ---
@@ -1472,8 +1526,21 @@ import tempfile
 from pathlib import Path
 
 OUT = Path("./output")
-STATUS = OUT / "flow_status.json"
-LOG = OUT / "flow_shturl"
+STATUS = OUT / "00-flow" / "flow_status.json"
+LOG = OUT / "00-flow" / "flow_shturl"
+STAGE_DIRS = {
+    0: "00-flow",
+    1: "01-requirements",
+    2: "02-scheme-io-bom",
+    3: "03-electrical",
+    4: "04-scl",
+    5: "05-sim-trace",
+    6: "06-eval-archive",
+}
+
+
+def out(stage: int, *parts: str) -> Path:
+    return OUT / STAGE_DIRS[stage] / Path(*parts)
 
 
 def now_iso() -> str:
@@ -1491,7 +1558,7 @@ def sha256_file(path: Path) -> str:
 def record(path: Path) -> dict:
     if not path.is_file():
         return {
-            "path": str(path),
+            "path": path.as_posix(),
             "exists": False,
             "size_bytes": None,
             "sha256": None,
@@ -1499,7 +1566,7 @@ def record(path: Path) -> dict:
         }
     st = path.stat()
     return {
-        "path": str(path),
+        "path": path.as_posix(),
         "exists": True,
         "size_bytes": st.st_size,
         "sha256": sha256_file(path),
@@ -1598,7 +1665,7 @@ CLAIM_BAN = ("验收通过", "项目合格", "安全合规", "已验收", "全�
 4. **禁止用旧文件冒充新输出**：基线未变化即 `E10_STALE_OUTPUT`。
 5. **禁止伪造门禁**：未执行的检查不能写“通过”；无编译通道不能写“编译通过”；无仿真通道不能写“测试通过”。
 6. **禁止合并阶段**：不得把阶段2/3/4 合并成一次“顺便做完”，也不得把阶段5/6 合并成“跑完顺手评估一下”。
-7. **禁止修改固定路径**：`./output/`、`flow_status.json`、`flow_shturl`、各阶段文件名不得改。
+7. **禁止修改固定路径**：`./output/` 根、7 个阶段目录名、`00-flow/flow_status.json`、`00-flow/flow_shturl`、各阶段文件名不得改。
 8. **禁止把模拟回答写成客户确认**：`【模拟回答】` 永远不是 `已确认`。
 9. **禁止把 `待人工判定` 自动关闭**：强条、冲突、缺参必须由人处理。模拟模式只允许在报告中给出 `【模拟裁决】` 预判并让门禁判 `通过（模拟）`，**原表里的 `待人工判定` 必须原样保留**。
 10. **禁止把“未验证”写成“已验证”**：编译通过仅语法/接口；逻辑未验证。
@@ -1700,17 +1767,17 @@ report to user（含“待复核（模拟）清单”、未测试声明、评估
 - 总耗时:
 - 阶段状态: 1 成功 / 2 成功 / 3 成功 / 4 成功 / 5 成功（<全部通过|部分未执行|未执行>）/ 6 成功（<评估完成|评估不完整>）
 - 交付物:
-  - 需求: ./output/requirements_spec.xlsx, ./output/clarification_shturl.md
-  - 方案/IO/BOM: ./output/scheme.md, ./output/io_list.xlsx, ./output/bom.xlsx, ./output/multi_check_report.md
-  - 电气: ./output/io_address.xlsx, ./output/loop_description.md, ./output/cable_schedule.xlsx, ./output/terminal_list.xlsx, ./output/clause_check.xlsx, ./output/drawing_data.json
-  - 代码: ./output/src/*.scl, ./output/compilation_fix_shturl
-  - 仿真/追溯: ./output/test_steps.csv, ./output/results.xlsx, ./output/traceability_matrix.xlsx
-  - 评估/归档: ./output/project_evaluation_report.md, ./output/quality_metrics_summary.xlsx, ./output/project_archive_list.md
+  - 需求: ./output/01-requirements/requirements_spec.xlsx, ./output/01-requirements/clarification_shturl.md
+  - 方案/IO/BOM: ./output/02-scheme-io-bom/scheme.md, ./output/02-scheme-io-bom/io_list.xlsx, ./output/02-scheme-io-bom/bom.xlsx, ./output/02-scheme-io-bom/multi_check_report.md
+  - 电气: ./output/03-electrical/io_address.xlsx, ./output/03-electrical/loop_description.md, ./output/03-electrical/cable_schedule.xlsx, ./output/03-electrical/terminal_list.xlsx, ./output/03-electrical/clause_check.xlsx, ./output/03-electrical/drawing_data.json
+  - 代码: ./output/04-scl/src/*.scl, ./output/04-scl/compilation_fix_shturl
+  - 仿真/追溯: ./output/05-sim-trace/test_steps.csv, ./output/05-sim-trace/results.xlsx, ./output/05-sim-trace/traceability_matrix.xlsx
+  - 评估/归档: ./output/06-eval-archive/project_evaluation_report.md, ./output/06-eval-archive/quality_metrics_summary.xlsx, ./output/06-eval-archive/project_archive_list.md
 - 编译状态: <编译通过（仅语法/接口；逻辑未验证）| 编译未执行>
 - 仿真状态: <N 条用例全部通过（综合追溯覆盖率 100%）| 部分未执行：<原因>| 未执行：<原因>>
 - 评估状态: <14 项指标中已计算 X 项、待统计 Y 项；归档 17/17|归档 Z 项缺失>
 - 模拟回答披露: <有/无；有则说明非客户正式确认>
-- 状态/日志: ./output/flow_status.json, ./output/flow_shturl
+- 状态/日志: ./output/00-flow/flow_status.json, ./output/00-flow/flow_shturl
 - 未验证/待人工事项: <列出；无则写无>
 ```
 
@@ -1747,7 +1814,7 @@ report to user（含“待复核（模拟）清单”、未测试声明、评估
 | 读块 | `GetBlocksWithHierarchy`、`GetBlocks`、`DescribeBlockLogic` | — |
 | 读变量 | `GetPlcTags`、`GetPlcTagTables` | `list_tags` |
 | 建块/导入 | `PlcBuildAndImport`、`ImportPlcExternalSource` + `GenerateBlocksFromExternalSource`、`ImportFromDocuments` | `create_fb`、`import_scl_source` |
-| 变量表 | `ImportPlcTagTable`（导入阶段3 的 `plc_tag_map.csv` 映射）、`GetPlcTagTables` | `create_tags`、手写变量表 |
+| 变量表 | `ImportPlcTagTable`（导入阶段3 的 `plc_tag_table.xml`）、`GetPlcTagTables` | `create_tags`、手写变量表 |
 | 编译 | `CompileAndDiagnosePlc`、`CompileSoftware` | `compile`、`get_compile_diagnostics` |
 | 导出 | `ExportAsDocuments`、`ExportBlock` | `export_block` |
 | 下载/在线 | `DownloadToPlc`、`GoOnline`、`GoOffline` | — |
@@ -1768,7 +1835,7 @@ report to user（含“待复核（模拟）清单”、未测试声明、评估
 
 ### 23.3 阶段0 能力探测
 
-阶段0 必须调用 `Bootstrap` + `GetState` + `GetProject`，把结果写入 `./output/_stage0/capabilities.json`：
+阶段0 必须调用 `Bootstrap` + `GetState` + `GetProject`，把结果写入 `./output/00-flow/capabilities.json`：
 
 ```json
 {
@@ -1838,7 +1905,7 @@ report to user（含“待复核（模拟）清单”、未测试声明、评估
 
 ```bash
 python <skills>/auto-flow-master-00/assets/checkers/check_stage4.py --project <项目根>
-python <skills>/auto-flow-master-00/assets/checkers/check_stage5.py --project <项目根> --results output/results.xlsx
+python <skills>/auto-flow-master-00/assets/checkers/check_stage5.py --project <项目根> --results output/05-sim-trace/results.xlsx
 ```
 
 任一退出码为 `1`（FAIL）或 `2`（输入缺失）→ G4/G5 判 PASS 不成立，按附录 Z 的 G-01/G-02 降级处理并在

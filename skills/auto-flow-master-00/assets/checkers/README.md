@@ -13,7 +13,7 @@
 python check_stage4.py --project <项目根> [--profile rules.json] [--json out.json] [--skip CHK-S4-01 ...]
 
 # 阶段5：扫 test_steps.csv（前置态列 / 判定时刻 / 表达式 / 点位合法性 / 执行覆盖）
-python check_stage5.py --project <项目根> [--results output/results.xlsx] [--profile rules.json]
+python check_stage5.py --project <项目根> [--results output/05-sim-trace/results.xlsx] [--profile rules.json]
 ```
 
 退出码：`0` = PASS，`1` = FAIL（可挂 CI 或编排器门禁），`2` = 输入缺失。

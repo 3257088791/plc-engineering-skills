@@ -20,10 +20,10 @@ whenToUse: "当PLC程序已编译通过并可加载PLCSIM，需要按需求验�
 
 ### 0.2 目标
 
-1. 把 `requirements_spec.xlsx` 中每条已确认 REQ 的验收准则，拆解为可执行、可采集、可判定的仿真测试用例，输出 `./output/test_steps.csv`；
-2. 在 PLCSIM 中逐条施加输入激励、保持设定时长、采集实际输出，按实际采集值判定，输出 `./output/results.xlsx`；
+1. 把 `requirements_spec.xlsx` 中每条已确认 REQ 的验收准则，拆解为可执行、可采集、可判定的仿真测试用例，输出 `./output/05-sim-trace/test_steps.csv`；
+2. 在 PLCSIM 中逐条施加输入激励、保持设定时长、采集实际输出，按实际采集值判定，输出 `./output/05-sim-trace/results.xlsx`；
 3. 对失败项反向还原 `REQ → IO → BOM → TERM → CODE` 问题链路，定位归属阶段并输出问题定位清单与返回指引；
-4. 构建 `./output/traceability_matrix.xlsx`，实现 `REQ ↔ IO ↔ BOM ↔ TERM ↔ CODE ↔ TEST` 六类节点 100% 映射与任意 ID 反查。
+4. 构建 `./output/05-sim-trace/traceability_matrix.xlsx`，实现 `REQ ↔ IO ↔ BOM ↔ TERM ↔ CODE ↔ TEST` 六类节点 100% 映射与任意 ID 反查。
 
 ### 0.3 红线（最高优先级）
 
@@ -49,10 +49,10 @@ whenToUse: "当PLC程序已编译通过并可加载PLCSIM，需要按需求验�
 | 输入 | 默认路径 | 用途 | 必需 |
 |---|---|---|---|
 | 编译通过、可加载 PLCSIM 的 PLC 工程 | 用户指定项目路径 / 已打开的 TIA 项目 | 下载到 PLCSIM 执行 | 是 |
-| 需求规格表 | `./output/requirements_spec.xlsx` | REQ-ID、验收准则、优先级、状态 | 是 |
-| 全项目结构化数据源 | `./output/drawing_data.json` | IO/地址/回路/BOM/端子/追溯关系 | 是 |
-| 阶段4编译与块清单 | `./output/compilation_fix_shturl`、`./output/src/*.scl` | 解析 CODE-ID、确认编译状态 | 强烈建议 |
-| 代码-需求映射 | `./output/code_req_map.csv`（若提供） | 列：`REQ-ID,CODE-ID,块名,文件`（无空格） | 否 |
+| 需求规格表 | `./output/01-requirements/requirements_spec.xlsx` | REQ-ID、验收准则、优先级、状态 | 是 |
+| 全项目结构化数据源 | `./output/03-electrical/drawing_data.json` | IO/地址/回路/BOM/端子/追溯关系 | 是 |
+| 阶段4编译与块清单 | `./output/04-scl/compilation_fix_shturl`、`./output/04-scl/src/*.scl` | 解析 CODE-ID、确认编译状态 | 强烈建议 |
+| 代码-需求映射 | `./output/04-scl/code_req_map.csv`（若提供） | 列：`REQ-ID,CODE-ID,块名,文件`（无空格） | 否 |
 | 仿真通道 | TIA Openness / PLCSIM Advanced API / 项目批准的仿真接口 | 下载、运行、读写信号 | 判定通过必需 |
 | 用户补充 | 对话/参数 | CPU 型号、PLCSIM 实例名、地址、采样周期 | 否 |
 
@@ -90,14 +90,16 @@ whenToUse: "当PLC程序已编译通过并可加载PLCSIM，需要按需求验�
 
 | 输出 | 固定路径 | 工作表/格式 |
 |---|---|---|
-| 仿真测试步骤集 | `./output/test_steps.csv` | CSV，8 列（含前置态/判定时刻），UTF-8 BOM + CRLF |
-| 仿真测试结果报告 | `./output/results.xlsx` | `00-说明`、`01-测试结果`、`02-问题定位` |
-| 全链路需求追溯矩阵 | `./output/traceability_matrix.xlsx` | `00-说明`、`01-追溯矩阵`、`02-反向索引` |
+| 仿真测试步骤集 | `./output/05-sim-trace/test_steps.csv` | CSV，8 列（含前置态/判定时刻），UTF-8 BOM + CRLF |
+| 仿真测试结果报告 | `./output/05-sim-trace/results.xlsx` | `00-说明`、`01-测试结果`、`02-问题定位` |
+| 全链路需求追溯矩阵 | `./output/05-sim-trace/traceability_matrix.xlsx` | `00-说明`、`01-追溯矩阵`、`02-反向索引` |
+
+生成前创建 `./output/05-sim-trace/` 与 `./output/05-sim-trace/_work/`。
 
 过程证据（非交付物，供复核）：
 
 ```text
-./output/_stage5/
+./output/05-sim-trace/_work/
 ├── test_design.json          # 用例设计中间稿（人可审，脚本只校验与落盘）
 ├── sim_run.json              # 每个用例的时序、采样、原始值、判定
 ├── run_manifest.json         # 可选：输入哈希、版本、通道、批次（与 00-说明 一致）
@@ -323,12 +325,12 @@ TEST-ID,关联REQ-ID,测试场景,输入激励,前置态,保持时间(ms),判定
 ### 3.3 生成脚本
 
 ```python
-# ./output/_stage5/build_tests.py
+# ./output/05-sim-trace/_work/build_tests.py
 import csv, json, re
 from pathlib import Path
 from openpyxl import load_workbook
 
-OUT = Path("./output"); STAGE = OUT / "_stage5"
+OUT = Path("./output"); STAGE = OUT / "05-sim-trace" / "_work"
 HDR = ["TEST-ID", "关联REQ-ID", "测试场景", "输入激励", "前置态",
        "保持时间(ms)", "判定时刻", "期望输出"]
 SCENES = ("正常工况", "急停工况", "故障工况", "复位异常工况")
@@ -365,13 +367,13 @@ def parse_pairs(text, where):
 
 
 def main():
-    reqs = load_reqs(OUT / "requirements_spec.xlsx")
+    reqs = load_reqs(OUT / "01-requirements" / "requirements_spec.xlsx")
     included = {r["REQ-ID"]: r for r in reqs
                 if r.get("状态") in ("已确认", "【模拟回答】")}
     if not included:
         raise SystemExit("【缺少输入：无已确认需求】")
 
-    dd = json.loads((OUT / "drawing_data.json").read_text(encoding="utf-8"))
+    dd = json.loads((OUT / "03-electrical" / "drawing_data.json").read_text(encoding="utf-8"))
     io_ids = {i["io_id"] for i in dd.get("io", [])}
 
     design = json.loads((STAGE / "test_design.json").read_text(encoding="utf-8"))
@@ -417,8 +419,8 @@ def main():
             print(f"[WARN] 场景未覆盖：{sc}；须在 results/00-说明 写『不适用+依据』，否则不得交付")
 
     out.sort(key=lambda r: (r[1], r[0]))
-    OUT.mkdir(exist_ok=True)
-    with (OUT / "test_steps.csv").open("w", encoding="utf-8-sig", newline="") as f:
+    (OUT / "05-sim-trace").mkdir(parents=True, exist_ok=True)
+    with (OUT / "05-sim-trace" / "test_steps.csv").open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f, lineterminator="\r\n")
         w.writerow(HDR)
         w.writerows(out)
@@ -550,11 +552,11 @@ if __name__ == "__main__":
 通道相关方法必须按**实际授权接口**实现；未实现即"未执行"，禁止用假数据填充。
 
 ```python
-# ./output/_stage5/run_sim.py —— 逐条加载 test_steps.csv；通道方法按实际接口实现
+# ./output/05-sim-trace/_work/run_sim.py —— 逐条加载 test_steps.csv；通道方法按实际接口实现
 import csv, json, re, time
 from pathlib import Path
 
-OUT = Path("./output"); STAGE = OUT / "_stage5"
+OUT = Path("./output"); STAGE = OUT / "05-sim-trace" / "_work"
 SAMPLE_MS = 50
 PAIR_RE = re.compile(r"^\s*([A-Za-z0-9_-]+)\s*(>=|<=|=)\s*(.+?)\s*$")
 
@@ -579,7 +581,7 @@ class SimAdapter:
 
 
 def load_maps():
-    dd = json.loads((OUT / "drawing_data.json").read_text(encoding="utf-8"))
+    dd = json.loads((OUT / "03-electrical" / "drawing_data.json").read_text(encoding="utf-8"))
     return dd, {a["io_id"]: a.get("address") for a in dd.get("addresses", [])}
 
 
@@ -619,7 +621,7 @@ def judge(expected, actual):
 
 def main(adapter, batch, instance, cpu):
     _, addr = load_maps()
-    with (OUT / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
+    with (OUT / "05-sim-trace" / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
         steps = list(csv.DictReader(f))
     adapter.connect(instance, cpu)
     cases, defects = [], []
@@ -726,13 +728,13 @@ SIM-RUN-20261114-101500；初始化=冷启动；采样=50ms×20；差异=IO-010 
 ### 5.4 生成脚本
 
 ```python
-# ./output/_stage5/write_results.py
+# ./output/05-sim-trace/_work/write_results.py
 import json
 from pathlib import Path
 from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font, PatternFill
 
-OUT = Path("./output"); STAGE = OUT / "_stage5"
+OUT = Path("./output"); STAGE = OUT / "05-sim-trace" / "_work"
 MAIN = ["TEST-ID", "关联REQ-ID", "测试场景", "输入激励",
         "期望输出", "实际输出", "判定结果", "备注"]
 WIDTH = [14, 14, 22, 34, 26, 26, 10, 52]
@@ -772,9 +774,9 @@ def build(meta, cases, defects):
     wd.freeze_panes = "A2"
     wd.auto_filter.ref = wd.dimensions
 
-    tmp = OUT / "results.tmp.xlsx"
+    tmp = OUT / "05-sim-trace" / "results.tmp.xlsx"
     wb.save(tmp)
-    tmp.replace(OUT / "results.xlsx")
+    tmp.replace(OUT / "05-sim-trace" / "results.xlsx")
     print(f"results.xlsx: {len(cases)} 行 / 缺陷 {len(defects)} 条")
 
 
@@ -943,7 +945,7 @@ ID | ID类型 | 关联TRACE-ID列表 | 关联说明
 ### 7.7 生成脚本（骨架）
 
 ```python
-# ./output/_stage5/build_trace.py
+# ./output/05-sim-trace/_work/build_trace.py
 import csv, json, hashlib
 from collections import defaultdict
 from datetime import datetime
@@ -961,7 +963,7 @@ def sha(p):
 
 def load_tests():
     rows = []
-    with (OUT / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
+    with (OUT / "05-sim-trace" / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
         for r in csv.DictReader(f):
             rows.append(r)
     by_req = defaultdict(list)
@@ -972,7 +974,7 @@ def load_tests():
 
 def load_req_set():
     """纳入测试的需求集合；未被覆盖的 REQ 也要在矩阵中出行。"""
-    wb = load_workbook(OUT / "requirements_spec.xlsx", data_only=True)
+    wb = load_workbook(OUT / "01-requirements" / "requirements_spec.xlsx", data_only=True)
     for ws in wb.worksheets:
         hdr = [str(c.value).strip() if c.value is not None else "" for c in ws[1]]
         if hdr[:1] == ["REQ-ID"]:
@@ -985,7 +987,7 @@ def load_req_set():
 
 
 def main():
-    dd = json.loads((OUT / "drawing_data.json").read_text(encoding="utf-8"))
+    dd = json.loads((OUT / "03-electrical" / "drawing_data.json").read_text(encoding="utf-8"))
     io = {i["io_id"]: i for i in dd.get("io", [])}
     bom = {b.get("bom_id"): b for b in dd.get("bom", [])}
     terms = dd.get("terminals", [])
@@ -1024,7 +1026,7 @@ def main():
                              None, tid, None, ""])
 
     code_map = {}
-    f = OUT / "code_req_map.csv"
+    f = OUT / "04-scl" / "code_req_map.csv"
     if f.exists():
         with f.open(encoding="utf-8-sig", newline="") as fh:
             for r in csv.DictReader(fh):
@@ -1078,13 +1080,13 @@ def main():
         wi.append([k, kind(k), ",".join(sorted(idx[k])), ""])
 
     # 00-说明：统计与口径由脚本计算，禁止手填
-    ws_r = load_workbook(OUT / "results.xlsx", data_only=True)["01-测试结果"]
+    ws_r = load_workbook(OUT / "05-sim-trace" / "results.xlsx", data_only=True)["01-测试结果"]
     judged = [r[6].value for r in ws_r.iter_rows(min_row=2) if r[0].value]
     total, complete_n = len(rows), sum(1 for r in rows if r[7] == "完整")
     req_ids = sorted({r[1] for r in rows})
     cov_req = len({r[1] for r in rows if r[6] != "—"}) / len(req_ids) if req_ids else 0
     batch = "—"
-    sp = OUT / "_stage5" / "sim_run.json"
+    sp = OUT / "05-sim-trace" / "_work" / "sim_run.json"
     if sp.exists():
         batch = json.loads(sp.read_text(encoding="utf-8")).get("batch", "—")
     verdict = ("仿真验证通过" if judged and all(x == "通过" for x in judged)
@@ -1102,10 +1104,10 @@ def main():
         ("结果覆盖率", f"{len(judged) / len(tests):.1%}" if tests else "0.0%"),
         ("判定分布", f"通过 {judged.count('通过')} / 失败 {judged.count('失败')} / "
                      f"未执行 {judged.count('未执行')} / 阻塞 {judged.count('阻塞')}"),
-        ("输入哈希", f"requirements_spec.xlsx={sha(OUT / 'requirements_spec.xlsx')[:16]}…; "
-                     f"drawing_data.json={sha(OUT / 'drawing_data.json')[:16]}…; "
-                     f"test_steps.csv={sha(OUT / 'test_steps.csv')[:16]}…; "
-                     f"results.xlsx={sha(OUT / 'results.xlsx')[:16]}…"),
+        ("输入哈希", f"requirements_spec.xlsx={sha(OUT / "01-requirements" / "requirements_spec.xlsx")[:16]}…; "
+                     f"drawing_data.json={sha(OUT / "03-electrical" / "drawing_data.json")[:16]}…; "
+                     f"test_steps.csv={sha(OUT / "05-sim-trace" / "test_steps.csv")[:16]}…; "
+                     f"results.xlsx={sha(OUT / "05-sim-trace" / "results.xlsx")[:16]}…"),
         ("数据版本", f"{dd.get('data_version', '—')} / {dd.get('address_version', '—')}"),
         ("缺口行", ", ".join(gaps) if gaps else "无"),
         ("说明", "本表由 build_trace.py 生成；N/A 节点须在备注写依据；别名 CODE-ID 记缺口；"
@@ -1115,8 +1117,8 @@ def main():
     note.column_dimensions["A"].width = 18
     note.column_dimensions["B"].width = 80
 
-    wb.save(OUT / "traceability_matrix.tmp.xlsx")
-    (OUT / "traceability_matrix.tmp.xlsx").replace(OUT / "traceability_matrix.xlsx")
+    wb.save(OUT / "05-sim-trace" / "traceability_matrix.tmp.xlsx")
+    (OUT / "05-sim-trace" / "traceability_matrix.tmp.xlsx").replace(OUT / "05-sim-trace" / "traceability_matrix.xlsx")
     print(f"traceability_matrix.xlsx: {len(rows)} 行 / 缺口 {len(gaps)} 行")
 
 
@@ -1140,8 +1142,8 @@ if __name__ == "__main__":
 校验器已外置到 `assets/validate_stage5.py`（**唯一事实源**，禁止在本文件内再抄一份源码）。交付前：
 
 ```bash
-cp <skills>/sim-trace-05/assets/validate_stage5.py ./output/_stage5/
-python ./output/_stage5/validate_stage5.py --project <项目根>
+cp <skills>/sim-trace-05/assets/validate_stage5.py ./output/05-sim-trace/_work/
+python ./output/05-sim-trace/_work/validate_stage5.py --project <项目根>
 ```
 
 **输出契约**：首行 `PASS`/`FAIL`，明细逐行 ` - ` 开头，退出码 `0`=PASS、`1`=FAIL、`2`=输入缺失；只有首行 `PASS` **且**退出码 `0` 才算通过（与 `auto-flow-master-00` §12.3 G5-07 一致）。
@@ -1278,11 +1280,11 @@ TEST-003-01,REQ-003,复位异常工况:条件未满足复位无效,IO-006=1; IO-
 ## 附录 F：工作目录
 
 ```text
-output/
+output/05-sim-trace/
 ├── test_steps.csv
 ├── results.xlsx
 ├── traceability_matrix.xlsx
-└── _stage5/
+└── _work/
     ├── test_design.json
     ├── sim_run.json
     ├── run_manifest.json
@@ -1379,7 +1381,7 @@ output/
 本技能交付前**必须**执行阶段5 静态门禁：
 
 ```bash
-python <skills>/auto-flow-master-00/assets/checkers/check_stage5.py --project <项目根> --results output/results.xlsx
+python <skills>/auto-flow-master-00/assets/checkers/check_stage5.py --project <项目根> --results output/05-sim-trace/results.xlsx
 ```
 
 退出码 `1` 即为门禁 FAIL。机检条目：缺前置态列(T-02)、缺判定时刻或早于保持时间(T-02)、

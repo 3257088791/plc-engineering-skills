@@ -1,4 +1,4 @@
-# ./output/_stage6/validate_stage6.py
+# ./output/06-eval-archive/_work/validate_stage6.py
 import hashlib
 import sys
 import json
@@ -29,19 +29,19 @@ def sha(p):
 def main():
     for name in ("project_evaluation_report.md", "quality_metrics_summary.xlsx",
                  "project_archive_list.md"):
-        p = OUT / name
+        p = OUT / "06-eval-archive" / name
         check(p.exists() and p.stat().st_size > 0, f"缺少输出：{name}")
 
-    data = json.loads((OUT / "_stage6" / "eval_data.json").read_text(encoding="utf-8"))
+    data = json.loads((OUT / "06-eval-archive" / "_work" / "eval_data.json").read_text(encoding="utf-8"))
     payload = {k: v for k, v in data.items() if k != "fingerprint"}
     fp = hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     check(fp == data.get("fingerprint"), "eval_data 指纹不匹配（生成后被改过）")
 
-    report = (OUT / "project_evaluation_report.md").read_text(encoding="utf-8")
+    report = (OUT / "06-eval-archive" / "project_evaluation_report.md").read_text(encoding="utf-8")
     check(f"数据指纹：{fp[:16]}" in report, "报告缺少数据指纹或指纹不一致")
     check(not re.search(r"验收通过|项目合格|安全合规", report), "报告出现越权结论")
 
-    wb = load_workbook(OUT / "quality_metrics_summary.xlsx", data_only=True)
+    wb = load_workbook(OUT / "06-eval-archive" / "quality_metrics_summary.xlsx", data_only=True)
     for s in ("00-说明", "01-指标台账", "02-工时成本", "03-风险清单", "04-归档核对"):
         check(s in wb.sheetnames, f"缺少工作表：{s}")
     ws = wb["01-指标台账"]
@@ -51,11 +51,11 @@ def main():
     check(all(r[7] in ("已计算", "部分", "待统计", "未开展", "未执行", "不适用") for r in rows),
           "指标状态词非法")
 
-    archive = (OUT / "project_archive_list.md").read_text(encoding="utf-8")
+    archive = (OUT / "06-eval-archive" / "project_archive_list.md").read_text(encoding="utf-8")
     for item in data["archive"]["items"]:
         check(item["path"] in archive, f"归档清单缺条目：{item['path']}")
 
-    now = {k: sha(OUT / k) for k in data["inputs"] if (OUT / k).exists()}
+    now = {k: sha(Path(k)) for k in data["inputs"] if Path(k).exists()}
     check(now == data["inputs"], "上游文件哈希变化：本技能不得修改上游")
 
     missing = [r for r in rows if r[7] == "待统计"]

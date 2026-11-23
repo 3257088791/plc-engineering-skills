@@ -40,14 +40,14 @@ whenToUse: "当需求基线已确认，需要开展阶段2控制方案编制、I
 
 | 输入 | 默认路径 | 用途 |
 |---|---|---|
-| 阶段1确认版需求规格 | `./output/requirements_spec.xlsx` | 方案骨架、REQ追溯、状态/优先级、预算/交期/安全要求 |
+| 阶段1确认版需求规格 | `./output/01-requirements/requirements_spec.xlsx` | 方案骨架、REQ追溯、状态/优先级、预算/交期/安全要求 |
 | 前置器件库 | `./device_library.xlsx` | 唯一可选器件来源 |
 | 用户补充指令 | 对话/参数 | 项目名、预算、交期、指定路径、工程师指定库内替代项 |
 
 路径解析规则：
 
 1. 用户明确给出路径时，以用户路径为准。
-2. 否则需求规格读 `./output/requirements_spec.xlsx`。
+2. 否则需求规格读 `./output/01-requirements/requirements_spec.xlsx`。
 3. 否则器件库先读 `./device_library.xlsx`，不存在再读 `./input/device_library.xlsx`。
 4. 两个默认位置都没有器件库，停止并返回：
 
@@ -72,15 +72,15 @@ whenToUse: "当需求基线已确认，需要开展阶段2控制方案编制、I
 
 | 文件 | 固定路径 | 内容 |
 |---|---|---|
-| 控制方案 | `./output/scheme.md` | 4部分方案文本 + 追溯 |
-| IO点位表 | `./output/io_list.xlsx` | 物理/内部/HMI信号，9字段 |
-| BOM物料清单 | `./output/bom.xlsx` | 库内选型结果，10字段 |
-| 多维自检报告 | `./output/multi_check_report.md` | 6项检查、发现、整改建议、审阅栏 |
+| 控制方案 | `./output/02-scheme-io-bom/scheme.md` | 4部分方案文本 + 追溯 |
+| IO点位表 | `./output/02-scheme-io-bom/io_list.xlsx` | 物理/内部/HMI信号，9字段 |
+| BOM物料清单 | `./output/02-scheme-io-bom/bom.xlsx` | 库内选型结果，10字段 |
+| 多维自检报告 | `./output/02-scheme-io-bom/multi_check_report.md` | 6项检查、发现、整改建议、审阅栏 |
 
-先执行等价于 `mkdir -p ./output` 的命令。Windows PowerShell 可用：
+先执行等价于 `mkdir -p ./output/02-scheme-io-bom` 的命令。Windows PowerShell 可用：
 
 ```powershell
-New-Item -ItemType Directory -Force -Path .\output | Out-Null
+New-Item -ItemType Directory -Force -Path .\output\02-scheme-io-bom | Out-Null
 ```
 
 ### 1.3 阻塞与部分输出
@@ -1337,10 +1337,10 @@ BOM-ID | 类别 | 名称 | 型号 | 数量 | 单价 | 小计 | 供应商 | 关�
 输出：
 
 ```text
-./output/scheme.md
-./output/io_list.xlsx
-./output/bom.xlsx
-./output/multi_check_report.md
+./output/02-scheme-io-bom/scheme.md
+./output/02-scheme-io-bom/io_list.xlsx
+./output/02-scheme-io-bom/bom.xlsx
+./output/02-scheme-io-bom/multi_check_report.md
 ```
 
 ---
@@ -1353,14 +1353,14 @@ BOM-ID | 类别 | 名称 | 型号 | 数量 | 单价 | 小计 | 供应商 | 关�
 
 ### Z.1 BOM 必须覆盖"被控对象本体"（B-01 · 强制）
 
-除电气物料外，BOM 必须包含被控机械本体（可动机构、电机、执行机构、结构件）。缺失时：
+除电气物料外，BOM 应覆盖被控机械本体（可动机构、电机、执行机构、结构件）；库内有对应项则列入 BOM，库内无对应项时按下列方式登记缺口，不得编造型号：
 
 - 必须在 `multi_check_report.md` 里登记为**结构缺口**（编号 OPEN-xx），不得静默通过
 - 不得以"第三方成套/接口预留"一笔带过整类本体
 
 > 真实事故：25 行 BOM 全是电气件，无执行机构、无动力电机、无钢结构 → 数字孪生做出来"没有任何东西可以动作"，装配/孪生/施工三方都无法落地。
 
-### Z.2 反饋点必须有器件行或显式缺口（B-02 · 强制）
+### Z.2 反馈点必须有器件行或显式缺口（B-02 · 强制）
 
 每个 DI/AI 反馈点必须能回指一个 BOM 器件；不能时逐点登记缺口，并写明"该点当前由谁承载"。
 > 真实事故：13 路热继电器过载反馈无对应 BOM 器件（`OPEN-01/02`），长期悬空。

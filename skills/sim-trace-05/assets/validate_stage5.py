@@ -1,4 +1,4 @@
-# ./output/_stage5/validate_stage5.py  —— 只读校验，不改任何文件
+# ./output/05-sim-trace/_work/validate_stage5.py  —— 只读校验，不改任何文件
 # 契约（与 auto-flow-master-00 §12.3 G5-07 一致）：
 #   首行输出 PASS / FAIL；明细以 " - " 开头逐条输出；退出码 0=PASS，1=FAIL，2=输入缺失/不可解析。
 # 用法：python validate_stage5.py [--project <项目根>]
@@ -37,7 +37,7 @@ def check(cond, msg):
 
 
 def load_reqs(out):
-    wb = load_workbook(out / "requirements_spec.xlsx", data_only=True)
+    wb = load_workbook(out / "01-requirements" / "requirements_spec.xlsx", data_only=True)
     for ws in wb.worksheets:
         hdr = [str(c.value).strip() if c.value is not None else "" for c in ws[1]]
         if hdr[:1] == ["REQ-ID"]:
@@ -54,11 +54,11 @@ def main():
     out = Path(a.project).expanduser().resolve() / "output"
 
     for name in ("test_steps.csv", "results.xlsx", "traceability_matrix.xlsx"):
-        check((out / name).is_file(), f"缺少输出：{name}")
+        check((out / "05-sim-trace" / name).is_file(), f"缺少输出：{name}")
     if ERR:
         return
 
-    with (out / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
+    with (out / "05-sim-trace" / "test_steps.csv").open(encoding="utf-8-sig", newline="") as f:
         steps = list(csv.DictReader(f))
     check(bool(steps), "test_steps.csv 没有数据行")
     if not steps:
@@ -78,7 +78,7 @@ def main():
         check(judge >= hold,
               f"{s.get('TEST-ID')} 判定时刻 {judge}ms 早于保持时间 {hold}ms（T-02）")
 
-    wb_r = load_workbook(out / "results.xlsx", data_only=True)
+    wb_r = load_workbook(out / "05-sim-trace" / "results.xlsx", data_only=True)
     ws = wb_r["01-测试结果"]
     res = [[c.value for c in r] for r in ws.iter_rows(min_row=2) if r[0].value]
     check([c.value for c in ws[1]] == RES_HDR, "results 主表表头不符")
@@ -89,7 +89,7 @@ def main():
                         s["输入激励"], s["期望输出"]]
               for r, s in zip(res, steps)), "结果表与 CSV 对应列不一致（按列名比对）")
 
-    wb_m = load_workbook(out / "traceability_matrix.xlsx", data_only=True)
+    wb_m = load_workbook(out / "05-sim-trace" / "traceability_matrix.xlsx", data_only=True)
     wm = wb_m["01-追溯矩阵"]
     mat = [[c.value for c in r] for r in wm.iter_rows(min_row=2) if r[0].value]
     check([c.value for c in wm[1]] == MAT_HDR, "矩阵表头不符")

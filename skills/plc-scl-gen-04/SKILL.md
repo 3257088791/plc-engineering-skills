@@ -14,9 +14,9 @@ whenToUse: "当IO地址、DB、FB/FC接口和需求已确认，需要生成S7-12
 
 目标：
 
-1. 在 `./output/src/` 下按 OB/FB/FC 分文件输出 `.scl` 源程序；
+1. 在 `./output/04-scl/src/` 下按 OB/FB/FC 分文件输出 `.scl` 源程序；
 2. 执行静态预检、TIA 导入/编译、错误定位与最多3轮自动修复；
-3. 输出 `./output/compilation_fix_shturl` 编译报错与修复日志；
+3. 输出 `./output/04-scl/compilation_fix_shturl` 编译报错与修复日志；
 4. 3轮仍不通过时转人工接管，不伪造编译通过。
 
 红线：
@@ -39,11 +39,12 @@ whenToUse: "当IO地址、DB、FB/FC接口和需求已确认，需要生成S7-12
 
 | 输入 | 默认路径 | 用途 | 必需 |
 |---|---|---|---|
-| PLC 变量表映射 | `./output/plc_tag_map.csv` | 符号名、地址、数据类型、方向、NC语义（阶段3 导出，**符号唯一来源**） | 是 |
-| 结构化IO地址表 | `./output/io_address.xlsx` | IO符号、地址、类型、方向、NC语义、REQ（与上一行交叉核对） | 是 |
-| DB数据块定义 | `./output/db_definitions.xlsx` 或用户指定 | DB名/成员/类型/默认值 | 是（`auto_simulate_customer=true` 时可生成草案） |
-| FB/FC接口契约 | `./output/interface_contract.md`/`.xlsx`/`.json` 或用户指定 | 块名、接口、静态/临时变量、实例DB、调用关系 | 是（`auto_simulate_customer=true` 时可生成草案） |
-| 已确认需求规格 | `./output/requirements_spec.xlsx` | 功能/边界/验收追溯 | 是 |
+| PLC 变量表映射 | `./output/03-electrical/plc_tag_map.csv` | 符号名、地址、数据类型、方向、NC语义（阶段3 导出，**符号唯一来源**） | 是 |
+| PLC 变量表 XML | `./output/03-electrical/plc_tag_table.xml` | 供 `ImportPlcTagTable` 导入；仅 PLC 变量，排除 HMI（阶段3 导出） | 是（TIA 导入必需） |
+| 结构化IO地址表 | `./output/03-electrical/io_address.xlsx` | IO符号、地址、类型、方向、NC语义、REQ（与上一行交叉核对） | 是 |
+| DB数据块定义 | `./output/04-scl/db_definitions.xlsx` 或用户指定 | DB名/成员/类型/默认值 | 是（`auto_simulate_customer=true` 时可生成草案） |
+| FB/FC接口契约 | `./output/04-scl/interface_contract.md`/`.xlsx`/`.json` 或用户指定 | 块名、接口、静态/临时变量、实例DB、调用关系 | 是（`auto_simulate_customer=true` 时可生成草案） |
+| 已确认需求规格 | `./output/01-requirements/requirements_spec.xlsx` | 功能/边界/验收追溯 | 是 |
 | 编译通道/日志 | TIA Openness/MCP 或 `compile_log.txt` | 真实编译反馈 | 编译必需 |
 | 用户补充 | 对话/参数 | 块清单、调用关系、工程前置说明 | 否 |
 
@@ -53,7 +54,7 @@ whenToUse: "当IO地址、DB、FB/FC接口和需求已确认，需要生成S7-12
 - 输入缺失/表头不符/文件是CSV改名：停止并返回：
 
 ```text
-【缺少输入：io_address.xlsx / DB定义 / 接口契约 / requirements_spec.xlsx】
+【缺少输入：io_address.xlsx / plc_tag_table.xml / DB定义 / 接口契约 / requirements_spec.xlsx】
 ```
 
 - 若接口契约已经包含IO/DB切片，仍要与 `io_address.xlsx` 和DB定义交叉核对；冲突时停止，不猜。
@@ -62,9 +63,11 @@ whenToUse: "当IO地址、DB、FB/FC接口和需求已确认，需要生成S7-12
 
 | 输出 | 固定路径 | 说明 |
 |---|---|---|
-| SCL源文件 | `./output/src/` | 每块一个 `.scl`；只放OB/FB/FC；不放DB/HMI/图纸。唯一允许的例外：`./output/src/使用说明/` 子目录，仅放使用说明 `.md`（不得与 `.scl` 同级混放其他文件） |
-| 源码使用说明 | `./output/src/使用说明/使用说明.md` | **必需交付物**：给工程师的导入/编译/下载/调试步骤、前置工程对象清单、编码与乱码处理、常见故障排查、已知限制与免责；不得包含“已验证/可现场运行”等结论 |
-| 编译修复日志 | `./output/compilation_fix_shturl` | 文件名无扩展名；Markdown式文本 |
+| SCL源文件 | `./output/04-scl/src/` | 每块一个 `.scl`；只放OB/FB/FC；不放DB/HMI/图纸。唯一允许的例外：`./output/04-scl/src/使用说明/` 子目录，仅放使用说明 `.md`（不得与 `.scl` 同级混放其他文件） |
+| 源码使用说明 | `./output/04-scl/src/使用说明/使用说明.md` | **推荐交付物（不阻断）**：给工程师的导入/编译/下载/调试步骤、前置工程对象清单、编码与乱码处理、常见故障排查、已知限制与免责；不得包含“已验证/可现场运行”等结论 |
+| 编译修复日志 | `./output/04-scl/compilation_fix_shturl` | 文件名无扩展名；Markdown式文本 |
+
+生成前创建 `./output/04-scl/src/`；如生成使用说明，再创建 `./output/04-scl/src/使用说明/`。
 
 源文件命名默认：
 
@@ -76,7 +79,7 @@ FC_<BlockName>.scl
 
 - 文件名用ASCII；块名以契约/块头为准；文件名中的空格替换为`_`，块头不改名。
 - 一块一文件；不要把多个块塞进一个 `.scl`。
-- 使用说明固定写入 `./output/src/使用说明/使用说明.md`（目录不存在则创建）；文件名不得改成 `README.txt` 等，也不得放在 `./output/` 根目录下。
+- 使用说明固定写入 `./output/04-scl/src/使用说明/使用说明.md`（目录不存在则创建）；文件名不得改成 `README.txt` 等，也不得放在 `./output/` 根目录下。
 - 不输出 `DATA_BLOCK` 源文件、HMI文件、电气图纸、仿真文件。
 
 ### 1.3 阻塞/部分输出
@@ -84,9 +87,11 @@ FC_<BlockName>.scl
 | 情况 | 处理 |
 |---|---|
 | 缺IO符号/DB成员/接口/静态实例 | 停止该块，标 `【契约缺口：...】`；不新增。**模拟模式例外：按下表生成契约草案** |
+| 缺 `plc_tag_table.xml` | 停止，回到阶段3 导出；不得从 CSV 直接导入 |
 | 定时器/计数器只能放TEMP | 停止，要求契约补静态实例；不得用TEMP（模拟模式：草案中补静态实例，标 `【模拟契约】`） |
 | FC需要背景实例但契约无InOut/DB | 停止，要求契约补；不得自建实例（模拟模式：草案中用 `VAR_IN_OUT` 传入背景 DB，标 `【模拟契约】`） |
 | DO存在多个拥有块 | 停止，要求契约明确唯一拥有者；不得重复写（模拟模式：草案中指定唯一拥有块，标 `【模拟契约】`） |
+| 全局 DB/OB1/tag 表缺失（编译时） | 停止并标 `【工程前置缺口：...】`；仅源码模式记录 `编译未执行：工程对象缺失`，不创建全局 DB/tag 表 |
 | 无TIA编译通道 | 只做静态预检，日志标`编译未执行`；不编造 |
 | 3轮修复仍失败 | 停止，转人工；保留残余错误 |
 | 输入契约冲突 | 停止；修改输入不是本技能职责（模拟模式：草案中按保守方案定夺，标 `【模拟契约】`） |
@@ -97,9 +102,9 @@ FC_<BlockName>.scl
 
 当 DB 定义或接口契约缺失（或调用上下文传 `AUTO_DRAFT`）时，不阻塞，按下列顺序生成草案并落盘：
 
-1. 从 `./output/io_address.xlsx` 取 IO 符号/类型/物理地址/REQ；
-2. 从 `./output/requirements_spec.xlsx` 取已确认与 `【模拟回答】` 的 REQ，按工艺段归纳块清单；
-3. 生成 `./output/db_definitions.xlsx`（DB名/成员/类型/数组/默认值/保持性）与 `./output/interface_contract.md`（块清单/接口/静态区/实例DB/调用图/边界条件/DO所有权/IO语义）；
+1. 从 `./output/03-electrical/io_address.xlsx` 取 IO 符号/类型/物理地址/REQ；
+2. 从 `./output/01-requirements/requirements_spec.xlsx` 取已确认与 `【模拟回答】` 的 REQ，按工艺段归纳块清单；
+3. 生成 `./output/04-scl/db_definitions.xlsx`（DB名/成员/类型/数组/默认值/保持性）与 `./output/04-scl/interface_contract.md`（块清单/接口/静态区/实例DB/调用图/边界条件/DO所有权/IO语义）；
 4. 在 `00-说明` 或文档头逐条标 `【模拟契约】`，并写明“草案未在 TIA 项目中存在，导入前须人工核对”；
 5. 若后续用户提供了真实契约，以真实契约为准，草案作废并升版本号。
 
@@ -133,26 +138,27 @@ compile_adapter 工具/日志/版本
 
 ### 2.2 IO符号
 
-**唯一来源：阶段3 的 `./output/plc_tag_map.csv`**（列：`IO-ID,Symbol,Address,DataType,Direction,NcSemantic,REQ-ID`）。它是地址表导出的映射，本阶段**只读、直接引用，不改名、不新建符号**。
+**符号唯一来源：阶段3 的 `./output/03-electrical/plc_tag_map.csv`**（列：`IO-ID,Symbol,Address,DataType,Direction,NcSemantic,REQ-ID`）；TIA 导入文件为同目录的 `./output/03-electrical/plc_tag_table.xml`。两者均由阶段3 导出，本阶段**只读、直接引用，不改名、不新建符号**。
 
 - 符号优先级：`plc_tag_map.csv` 的 `Symbol` > `io_address.xlsx` 的 `PLC符号` > `设备标签`；三者不一致时以 `plc_tag_map.csv` 为准并报不一致（不得自己挑一个用）。
-- 类型：DI/DO为`Bool`；AI/AO的S7类型（Int/Real/Word等）取 `plc_tag_map.csv` 的 `DataType`，其来源必须是接口契约/DB定义/模块通道类型，不能根据“模拟量”三个字猜。
+- 类型：DI/DO、内部 M 位为`Bool`；AI/AO、内部 MW 字为`Int`/`Real`/`Word`，取 `plc_tag_map.csv` 的 `DataType`，其来源必须是接口契约/DB定义/模块通道类型，不能根据“模拟量”三个字猜；HMI 不进入 PLC 变量表。
 - 物理地址、IO-ID、REQ、设备标签、备用标志、回路号保留用于追溯。
 - `备用` 行不生成代码；`内部`/`HMI` 仅在契约引用时使用；HMI标签不由PLC程序直接写，除非契约明确。
 - NC/安全语义取 `plc_tag_map.csv` 的 `NcSemantic`（`NO`=TRUE为动作 / `NC`=FALSE为正常）：`TRUE=安全`或`FALSE=安全`不得猜；缺失→契约缺口，停止。
 - 不得用 `IO-001` 这类带连字符的ID当SCL标识符。
-- 变量表由阶段3 的映射导入（`ImportPlcTagTable`），本阶段**不得自建或手改 PLC tag 表**；发现缺失/冲突只报缺口，回到阶段3。
-- 若 `plc_tag_map.csv` 不存在或与 `io_address.xlsx` 不一致：
+- 变量表由阶段3 的 `plc_tag_table.xml` 导入（`ImportPlcTagTable(softwarePath, folderPath, importPath)`）；CSV 仅作人类可读源，不直接导入。本阶段**不得自建或手改 PLC tag 表**；发现缺失/冲突只报缺口，回到阶段3。
+- 若 `plc_tag_map.csv`/`plc_tag_table.xml` 不存在或与 `io_address.xlsx` 不一致：
   - `auto_simulate_customer=false`：停止（`E07_IO_ADDRESS_MISSING` 或契约缺口），不得在代码里散落绝对地址；
-  - `auto_simulate_customer=true`：允许按 `SIG_` 规则**临时**生成符号并落盘到 `./output/_stage4/plc_tag_map.fallback.csv`（不得覆盖阶段3 的原文件），代码中只允许使用该集合内的符号，每处与报告都标 `【模拟契约】符号为自动生成，需在 TIA 侧按项目命名规范改名`；绝对地址只允许出现在注释与该 CSV，不得出现在逻辑语句里。
+  - `auto_simulate_customer=true`：允许按 `SIG_` 规则**临时**生成符号并落盘到 `./output/04-scl/_work/plc_tag_map.fallback.csv`，同时按同一映射生成 fallback XML（不得覆盖阶段3 的原文件），代码中只允许使用该集合内的符号，每处与报告都标 `【模拟契约】符号为自动生成，需在 TIA 侧按项目命名规范改名`；绝对地址只允许出现在注释与该 CSV/XML，不得出现在逻辑语句里。
 
 ### 2.3 DB定义
 
 - DB名、成员名、类型、数组、默认值、保持性必须逐字使用。
-- DB定义只读；不得修改DB、不得新增DB成员、不得生成DB源文件。
+- DB定义只读；不得修改全局 DB、不得新增 DB 成员、不得生成 DB 源文件。
 - 代码访问格式：`"DB_Name".Member`；数组/结构按契约。
-- DB不存在/成员不存在：编译会报错；本技能不改DB，只报契约/工程前置缺口。
-- DB必须已存在于TIA项目；本技能不创建DB。
+- 全局 DB 不存在/成员不存在：编译会报错；本技能不改全局 DB，只报契约/工程前置缺口。
+- 全局 DB 必须已存在于 TIA 项目；本技能不创建全局 DB。
+- 实例 DB：必须在契约中明确名称/编号；FB 生成后可按契约用 `CreateInstanceDB` 创建，已存在则复用并校验接口，不重复创建；不得自定名称或新建契约外实例。
 
 ### 2.4 FB/FC/OB接口
 
@@ -160,7 +166,7 @@ compile_adapter 工具/日志/版本
 - **FB静态区在SCL源中是 `VAR ... END_VAR`**，不是 `VAR_STATIC`；静态变量包括定时器/计数器/边沿实例/状态。
 - **FC没有静态区**；不能声明 `VAR` 静态段；需要保持的数据/实例通过 `VAR_IN_OUT` 或背景DB传入。
 - 变量段顺序按TIA接口：`VAR_INPUT` → `VAR_OUTPUT` → `VAR_IN_OUT` → `VAR`（静态）→ `VAR_TEMP`。
-- 实例DB/多重实例路径必须在契约中明确；不得自建实例DB名。
+- 实例DB/多重实例路径必须在契约中明确；可按契约名称/编号创建，不得自定或改名。
 - 不得新增/删除/改名接口参数；不得改变类型/默认值。
 
 ### 2.5 边界条件
@@ -192,7 +198,7 @@ compile_adapter 工具/日志/版本
 - 建 `call_graph`：OB→FB/FC；FB→FB/FC；实例DB/多重实例。
 - 生成顺序：叶子块→父块→OB；禁止循环调用；禁止调用未定义块。
 - 每个调用参数必须与接口契约名称/类型/方向一致；输出用 `=>`，输入用 `:=`。
-- 不得自建/改名实例DB；不得调用契约外块。
+- 不得自定/改名实例DB；可按契约名称/编号创建；不得调用契约外块。
 
 ### 2.8 契约校验
 
@@ -343,7 +349,7 @@ END_FUNCTION
 
 - 全局：`"BlockOrDB".Member`；本地：`#Var`。
 - 调用输入 `:=`，输出 `=>`。
-- 实例DB/多重实例路径必须来自契约；不得自建。
+- 实例DB/多重实例路径必须来自契约；可按契约名称/编号创建，不得自定。
 - 不允许把IO绝对地址散落在代码里，除非契约明确且无符号可用（仍需报告）。
 
 ### 3.6 定时器/计数器/边沿
@@ -446,7 +452,7 @@ EdgeStart : R_TRIG;
 【需求切片】只列本块实现的REQ/验收/边界。
 【调用】调用者/被调用块/实例DB/顺序。
 【约束】定时器/计数器静态；FC输出全分支；DO单写；只用契约符号；TIA格式。
-【禁止】新增变量/DB/接口/块；改输入；HMI/图纸/仿真；编造编译。
+【禁止】新增契约外的变量/全局 DB/接口/块；改输入；HMI/图纸/仿真；编造编译。
 【输出】只输出本块.scl内容，不解释。
 ```
 
@@ -461,18 +467,18 @@ EdgeStart : R_TRIG;
 - 代码只实现需求/契约定义的功能；不新增模式/报警/定时器。
 - 中文注释；块头写REQ/边界/“逻辑未验证”。
 - 变量/接口/DB/IO逐字匹配；不新增声明。
-- 写入 `./output/src/`；覆盖同名块前记录旧文件/版本；不删除契约外文件。
+- 写入 `./output/04-scl/src/`；覆盖同名块前记录旧文件/版本；不删除契约外文件。
 ### 4.4 生成后先静态预检
 
 见第5节；预检不过不进入编译。预检问题写日志 `PC-xxx`，修复后再编译。
 
-### 4.5 生成源码使用说明（必需）
+### 4.5 生成源码使用说明（推荐）
 
-在 `./output/src/使用说明/使用说明.md` 生成交付说明，内容取自本次契约与源文件（不是泛泛的通用说明），至少包含：
+需要生成时，在 `./output/04-scl/src/使用说明/使用说明.md` 写入交付说明，内容取自本次契约与源文件（不是泛泛的通用说明），至少包含：
 
 1. **交付清单**：块清单（块名/类型/文件/实例DB）、DB 清单、IO 符号表路径、各文件 SHA256；
 2. **前置条件**：TIA 版本、CPU 型号与固件、项目已存在的工程对象（项目、CPU、tag 表、DB、OB1）；
-3. **逐步操作**：建 PLC 变量表（由 `plc_tag_map.csv` 导入或建表规则）→ 建 DB（按 `db_definitions.xlsx` 逐字）→ 导入 `.scl`（外部源文件 → 从源生成块）→ 生成/确认实例 DB → 编译 → 下载 → 在线监控与调试；
+3. **逐步操作**：由 `plc_tag_table.xml` 导入 PLC 变量表 → 建全局 DB（按 `db_definitions.xlsx` 逐字）→ 导入 `.scl`（外部源文件 → 从源生成块）→ 按契约生成/确认实例 DB → 编译 → 下载 → 在线监控与调试；
 4. **编码说明**：UTF-8 with BOM + CRLF；导入后中文乱码时的两种处理（按 §3.1 例外条款转 GBK 或改英文）；
 5. **故障排查表**：导入失败/符号未定义/DB 或实例 DB 不存在/编码错误/典型编译错误分类与处理方向；
 6. **已知限制与免责**：编译是否执行、逻辑未验证、模拟契约/模拟裁决项、安全功能不得依赖本程序单独实现、需人工复核的边界条件；
@@ -497,7 +503,7 @@ EdgeStart : R_TRIG;
 | 符号 | 每个`#`/`"..."`/DB成员在契约内；无未声明 |
 | FC输出 | 每个输出有全分支赋值策略；无提前RETURN |
 | DO单写 | 每个DO恰好一个拥有块；无跨块重复赋值 |
-| 调用 | 块/实例DB存在；输入`:=`/输出`=>`；无循环调用 |
+| 调用 | 块存在；实例 DB 允许在 FB 生成后按契约创建；输入`:=`/输出`=>`；无循环调用 |
 | 结构 | IF/END_IF、CASE/END_CASE、FOR/END_FOR、WHILE/END_WHILE、REPEAT/END_REPEAT、VAR/END_VAR配对 |
 | 格式/编码 | 分号、块结束、UTF-8 with BOM（EF BB BF）、CRLF；GBK 试解码无替换字符；中文注释可正常显示；块头标签为中文 |
 | 追溯 | 每块有REQ；每个确认REQ有块落点；无未定义功能 |
@@ -542,7 +548,9 @@ EdgeStart : R_TRIG;
 
 - 工程前置：`Connect` → `OpenProject(项目.ap21)` 或 `AttachToOpenProject` → `GetProjectTree`；
 - 从项目读取真实 `softwarePath`（PLC 软件名，不是设备名）、CPU 型号、tag 表、DB、OB1；
-- 本技能不创建 CPU/tag 表/DB；
+- 仅编译时：先用 `ImportPlcTagTable(softwarePath, folderPath, importPath)` 导入阶段3 的 `plc_tag_table.xml`；导入失败→`E07_*`，不进入编译。
+- 本技能不创建 CPU/全局 DB/tag 表；进入 TIA 导入/编译时，全局 DB/OB1/tag 表必须已存在，缺失→`E07_PROJECT_OBJECT_MISSING`（`blocked`）；仅源码/静态预检模式可缺省，日志写 `编译未执行：工程对象缺失`；
+- 实例 DB：FB 生成后按契约用 `CreateInstanceDB` 创建，名称/编号逐字取契约；已存在则复用并校验，不重复创建；不得新建契约外实例。
 - 缺工程对象→`【工程前置缺口：...】`，`blocked`，不生成假 DB/tag。
 
 ### 6.2 编译消息解析
@@ -562,7 +570,7 @@ EdgeStart : R_TRIG;
 1. **覆盖准备**：`GetBlocksWithHierarchy` 查同名块；存在则 `DeletePlcBlock(softwarePath, blockPath, dryRun=false)`。
    原因：`GenerateBlocksFromExternalSource` **不覆盖**旧块，不删就会出现“编译 0 错误，逻辑还是旧的”。
    > `DeletePlcBlock` 默认挂在人工审批卡上：审批卡即每轮的人机检查点；若需全自动闭环，由用户显式移除该保护，不得默认关闭。
-2. **导入**：`WritePlcSclSourceFile` → `ImportPlcExternalSource` → `GenerateBlocksFromExternalSource`。
+2. **导入（仅编译时）**：`WritePlcSclSourceFile` → `ImportPlcExternalSource` → `GenerateBlocksFromExternalSource`；如契约需要实例 DB，在 FB 生成后用 `CreateInstanceDB` 创建（名称/编号取契约；已存在则复用并校验）。
 3. **编译**：`CompileAndDiagnosePlc(softwarePath)`，逐条取 errors 的 Path / Description / 行号。
 4. **判定**：
    - errors=0 → 进入第 5 步回读校验，通过则结束；
@@ -593,14 +601,15 @@ Round N | errors=n warnings=m | 错误码/块/行 | 改了什么 | 结果（通�
 | 定时器/计数器TEMP | 移到FB静态；契约无静态实例→停止，要求补契约 |
 | FC输出未赋值 | 临时变量末尾赋值/全分支赋值；不新增变量（除非契约有） |
 | DO重复赋值 | 合并到唯一拥有块；改变逻辑→报告，不静默 |
-| DB/块/实例DB缺失 | 不改DB/不建实例；报工程前置/契约缺口 |
+| 全局 DB/块缺失 | 不改全局 DB、不建块；报工程前置/契约缺口 |
+| 实例 DB 缺失 | 可在 FB 生成后按契约创建（CreateInstanceDB），已存在则复用并校验；契约无名称/编号→停止 |
 | 导入/编码 | 修正编码/块头/文件格式；不改逻辑 |
 | 编译器内部错误 | 记录；最多重试一次；不伪造通过 |
 
 ### 6.4 不允许的修复
 
 - 修改IO表/DB定义/接口契约/需求；
-- 新增变量/DB/接口/块/实例DB；
+- 新增契约外的变量/全局 DB/接口/块/实例 DB；
 - 为了让编译通过而删功能/改需求/改安全逻辑；
 - 把定时器/计数器改到TEMP；
 - 把多个DO写操作合并成“看似通过”但逻辑不明的代码；
@@ -630,7 +639,7 @@ Round 3：修复 → 重编译
 【输入】块名、契约接口、当前完整源码、编译诊断（逐条：块/行/错误码/原文）。
 【任务】只修复下列错误；每条错误必须对应一处修改，并在回复开头列出“错误→改法”对照表。
 【允许】补分号/配对/块头、改契约内符号拼写、加显式类型转换、定时器/计数器移入静态区、FC 输出全分支赋值。
-【禁止】新增变量/DB/接口/块/实例 DB；改 IO 表/契约/需求；删功能；改安全逻辑；动中文注释；伪造编译结果。
+【禁止】新增契约外的变量/全局 DB/接口/块/实例 DB；改 IO 表/契约/需求；删功能；改安全逻辑；动中文注释；伪造编译结果。
 【输出】只输出完整块源码（不是 diff），不要解释性长文；无法安全修复时只输出“转人工：<原因>”。
 ```
 
@@ -668,7 +677,7 @@ Round 3：修复 → 重编译
 
 ### 7.1 路径/格式
 
-- 固定路径 `./output/compilation_fix_shturl`；**无扩展名**。
+- 固定路径 `./output/04-scl/compilation_fix_shturl`；**无扩展名**。
 - UTF-8文本；Markdown式表格/标题即可；不要改名成`.md`（除非用户明确要求）。
 - 只记录真实编译/预检结果；没有编译就写“编译未执行”。
 
@@ -680,7 +689,7 @@ Round 3：修复 → 重编译
 ## 0. 概要
 - 项目/CPU/TIA版本：
 - 源目录/块清单：
-- 源码使用说明路径：./output/src/使用说明/使用说明.md
+- 源码使用说明路径：./output/04-scl/src/使用说明/使用说明.md
 - 接口/DB/IO/需求版本：
 - 编译工具/版本：
 - 初始状态/最终状态：
@@ -735,8 +744,8 @@ Round 3：修复 → 重编译
 
 > **附加强制项（2026-11-16）**：本清单之外还必须逐条满足附录 Z 的 S-01~S-06，任一条不满足不得声明本阶段完成。
 
-- [ ] `./output/src/` 存在；只有OB/FB/FC `.scl`；一块一文件（唯一例外：`使用说明/` 子目录仅含使用说明 `.md`）。
-- [ ] `./output/src/使用说明/使用说明.md` 存在且非空；含交付清单/前置条件/逐步操作/编码说明/故障排查/已知限制，且无“已编译通过、已验证”等未发生结论。
+- [ ] `./output/04-scl/src/` 存在；只有OB/FB/FC `.scl`；一块一文件（唯一例外：`使用说明/` 子目录仅含使用说明 `.md`）。
+- [ ] 如生成使用说明：`./output/04-scl/src/使用说明/使用说明.md` 存在且非空；含交付清单/前置条件/逐步操作/编码说明/故障排查/已知限制，且无“已编译通过、已验证”等未发生结论；未生成不阻断（推荐交付物）。
 - [ ] 块名/文件名/接口与契约逐字一致；无新增/删除/改名。
 - [ ] FB静态区用`VAR`，不是`VAR_STATIC`；FC无静态`VAR`。
 - [ ] 所有定时器/计数器/边沿实例在FB静态`VAR`；无TEMP实例。
@@ -874,7 +883,7 @@ END_FUNCTION
 | E-TYPE | 类型不匹配 | 契约允许的显式转换；否则停止 |
 | E-INTERFACE | 参数/接口不匹配 | 按契约改调用/接口；不新增参数 |
 | E-DB | DB/成员不存在 | 不改DB；报契约/工程缺口 |
-| E-INSTANCE | 实例DB不存在 | 不自建；报契约/工程缺口 |
+| E-INSTANCE | 实例DB不存在 | 按契约名称/编号创建；契约缺失→报缺口 |
 | E-STATIC | TEMP实例/静态错误 | 移到FB静态`VAR`；无静态→停止 |
 | E-OUTPUT | 输出未赋值 | 全分支/临时变量末尾赋值 |
 | E-DUP-DO | DO重复写入 | 合并到唯一拥有块；逻辑变更需报告 |
@@ -908,8 +917,8 @@ END_FUNCTION
 - [ ] 时间字面量`T#...`；调用`:=`/`=>`。
 - [ ] UTF-8 with BOM（EF BB BF）+CRLF；中文只在注释；块头标签为中文。
 - [ ] 无`VAR_STATIC`；无`PROGRAM`；无DB源输出。
-- [ ] TIA项目已有tag/DB/实例DB/硬件组态。
-- [ ] `./output/src/使用说明/使用说明.md` 已生成，且与本次块清单/DB/编码一致。
+- [ ] TIA项目已有 tag 表/全局 DB/OB1/硬件组态；实例 DB 按契约创建。
+- [ ] 如生成使用说明：与本次块清单/DB/编码一致；未生成不阻断（推荐交付物）。
 
 ## 附录 F：编译日志最小模板
 

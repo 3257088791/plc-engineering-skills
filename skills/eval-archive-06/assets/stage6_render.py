@@ -1,4 +1,4 @@
-# ./output/_stage6/stage6_render.py
+# ./output/06-eval-archive/_work/stage6_render.py
 """读取 eval_data.json，渲染 quality_metrics_summary.xlsx 与 project_archive_list.md。
 只做格式化，不重新计算任何数值。"""
 import json
@@ -8,7 +8,7 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment, Font  # noqa: F401
 
 OUT = Path("./output")
-STAGE = OUT / "_stage6"
+STAGE = OUT / "06-eval-archive" / "_work"
 METRIC_HDR = ["指标ID", "维度", "指标名称", "指标值", "单位", "计算口径", "数据来源", "状态", "备注"]
 COST_HDR = ["类别", "明细项", "数值", "单位", "单价(元)", "金额(元)", "数据来源", "状态", "备注"]
 RISK_HDR = ["RISK-ID", "类别", "风险描述", "关联交付物", "风险等级", "判定依据", "应对措施", "状态"]
@@ -89,9 +89,9 @@ def main():
                    it["version"], it["node"], it["note"]])
     wrap(wa)
 
-    tmp = OUT / "quality_metrics_summary.tmp.xlsx"
+    tmp = OUT / "06-eval-archive" / "quality_metrics_summary.tmp.xlsx"
     wb.save(tmp)
-    tmp.replace(OUT / "quality_metrics_summary.xlsx")
+    tmp.replace(OUT / "06-eval-archive" / "quality_metrics_summary.xlsx")
 
     aw = data["archive"]
     items = aw["items"]
@@ -109,12 +109,12 @@ def main():
         "```text",
         "archive/<project_id>/",
         "├── 00-归档说明.md",
-        "├── 01-需求/",
-        "├── 02-方案与BOM/",
-        "├── 03-电气设计/",
-        "├── 04-程序/",
-        "├── 05-仿真验证/",
-        "├── 06-评估/",
+        "├── 01-requirements/",
+        "├── 02-scheme-io-bom/",
+        "├── 03-electrical/",
+        "├── 04-scl/",
+        "├── 05-sim-trace/",
+        "├── 06-eval-archive/",
         "└── _manifest/SHA256SUMS.txt",
         "```",
         "",
@@ -144,7 +144,7 @@ def main():
         lines.append("无缺失项。")
     lines += [
         "", "## 5. 复用模板", "",
-        "- 目录：按 `01-需求`…`06-评估` 固定分层，阶段6 只放评估与归档产物。",
+        "- 目录：按 `01-requirements`…`06-eval-archive` 固定分层，阶段6 只放评估与归档产物。",
         "- 命名：沿用上游原文件名；归档说明与清单用 `00-` 前缀，不改名原件。",
         "- 版本：优先使用 `drawing_data.data_version` / `address_version`；无版本标 `未标注`，不伪造。",
         "- 校验：`_manifest/SHA256SUMS.txt` 记录相对路径与完整哈希，可用 `sha256sum -c` 校验。",
@@ -153,7 +153,7 @@ def main():
         "> 本清单只做归档评估，不移动/重命名任何上游文件；实际打包需用户确认后只读复制。",
         "",
     ]
-    (OUT / "project_archive_list.md").write_text("\n".join(lines), encoding="utf-8")
+    (OUT / "06-eval-archive" / "project_archive_list.md").write_text("\n".join(lines), encoding="utf-8")
     print(f"quality_metrics_summary.xlsx / project_archive_list.md 已生成；指纹 {fp[:16]}")
 
 

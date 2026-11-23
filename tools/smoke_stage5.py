@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 """阶段 5 门禁的夹具测试（双向验证）。
 
+夹具按 v2.0 分阶段布局生成到 build/smoke_project/：
+    output/01-requirements/requirements_spec.xlsx
+    output/03-electrical/plc_tag_map.csv
+    output/05-sim-trace/test_steps.csv|results.xlsx|traceability_matrix.xlsx
+
 正向：合格数据 → 校验器首行 PASS、退出码 0
 反向：判定时刻早于保持时间 / 缺口行无依据 / 阶段6 缺输入 → 首行 FAIL、退出码 1 或 2
 
@@ -30,7 +35,7 @@ except ImportError:
 
 REPO = Path(__file__).resolve().parent.parent
 SKILLS = REPO / "skills"
-PROJ = REPO / "samples" / "minimal_project"
+PROJ = REPO / "build" / "smoke_project"
 OUT = PROJ / "output"
 
 HDR = ["TEST-ID", "关联REQ-ID", "测试场景", "输入激励", "前置态",
@@ -46,7 +51,8 @@ ROWS = [
 def build_fixture() -> None:
     if PROJ.exists():
         shutil.rmtree(PROJ)
-    OUT.mkdir(parents=True)
+    for sub in ("01-requirements", "03-electrical", "05-sim-trace"):
+        (OUT / sub).mkdir(parents=True, exist_ok=True)
 
     wb = Workbook()
     ws = wb.active
@@ -54,9 +60,9 @@ def build_fixture() -> None:
     ws.append(["REQ-ID", "需求内容", "验收准则", "优先级", "关联IO占位", "状态"])
     ws.append(["REQ-001", "启动后电机运行", "IO-010=1 且保持 1s", "高", "IO-010", "已确认"])
     ws.append(["REQ-002", "急停切断输出", "IO-010=0 且 IO-020=0", "高", "IO-020", "已确认"])
-    wb.save(OUT / "requirements_spec.xlsx")
+    wb.save(OUT / "01-requirements" / "requirements_spec.xlsx")
 
-    (OUT / "plc_tag_map.csv").write_text(
+    (OUT / "03-electrical" / "plc_tag_map.csv").write_text(
         "IO-ID,Symbol,Address,DataType,Direction,NcSemantic,REQ-ID\n"
         "IO-001,SB1_START,I0.0,Bool,DI,NO,REQ-001\n"
         "IO-010,KM1_RUN,Q0.0,Bool,DO,NO,REQ-001\n"
@@ -70,7 +76,7 @@ def build_fixture() -> None:
     wb = Workbook()
     w0 = wb.active
     w0.title = "00-说明"
-    w0["A1"], w0["B1"] = "批次号", "SIM-20261116-01"
+    w0["A1"], w0["B1"] = "批次号", "SIM-20261122-01"
     w0["A2"], w0["B2"] = "通道", "PLCSIM_ADV"
     w0["A3"], w0["B3"] = "通过率分母口径", "通过数/已执行数"
     w1 = wb.create_sheet("01-测试结果")
@@ -80,13 +86,13 @@ def build_fixture() -> None:
         w1.append([r[0], r[1], r[2], r[3], r[7], r[7], "通过", "冒烟"])
     w2 = wb.create_sheet("02-问题定位")
     w2.append(["问题编号", "TEST-ID", "归属阶段", "证据", "建议"])
-    wb.save(OUT / "results.xlsx")
+    wb.save(OUT / "05-sim-trace" / "results.xlsx")
 
     write_matrix(full=True)
 
 
 def write_csv(rows) -> None:
-    with (OUT / "test_steps.csv").open("w", encoding="utf-8-sig", newline="") as f:
+    with (OUT / "05-sim-trace" / "test_steps.csv").open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f, lineterminator="\r\n")
         w.writerow(HDR)
         w.writerows(rows)
@@ -113,7 +119,7 @@ def write_matrix(full: bool) -> None:
                    "TEST-001-01", "部分", ""])
     w2 = wb.create_sheet("02-反向索引")
     w2.append(["ID", "类型", "引用位置"])
-    wb.save(OUT / "traceability_matrix.xlsx")
+    wb.save(OUT / "05-sim-trace" / "traceability_matrix.xlsx")
 
 
 def run(name: str, script: Path, expect_first: str, expect_codes: tuple[int, ...],
@@ -150,7 +156,7 @@ def main() -> int:
     ok = True
     ok &= run("validate_stage5 合格数据", val5, "PASS", (0,), ["--project", str(PROJ)])
     ok &= run("check_stage5 合格数据", chk5, "PASS", (0,),
-              ["--project", str(PROJ), "--results", "output/results.xlsx"])
+              ["--project", str(PROJ), "--results", "output/05-sim-trace/results.xlsx"])
     ok &= run("validate_stage6 缺输入", val6, "FAIL", (1, 2))
 
     # 反向 1：判定时刻早于保持时间
@@ -159,7 +165,7 @@ def main() -> int:
     write_csv(bad)
     ok &= run("validate_stage5 判定时刻过早", val5, "FAIL", (1,), ["--project", str(PROJ)])
     ok &= run("check_stage5 判定时刻过早", chk5, "FAIL", (1,),
-              ["--project", str(PROJ), "--results", "output/results.xlsx"])
+              ["--project", str(PROJ), "--results", "output/05-sim-trace/results.xlsx"])
     write_csv(ROWS)
 
     # 反向 2：缺口行无依据

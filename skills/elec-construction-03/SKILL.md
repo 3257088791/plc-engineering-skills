@@ -12,13 +12,13 @@ whenToUse: "当阶段2 IO/BOM 已完成，需要开展阶段3电气施工配套�
 
 目标：在阶段2 IO/BOM 基础上完成阶段3电气施工配套设计，输出：
 
-1. `./output/io_address.xlsx`：分配完成物理地址的IO表；
-2. `./output/loop_description.md`：回路说明文档；
-3. `./output/cable_schedule.xlsx`：电缆表及计算证据；
-4. `./output/terminal_list.xlsx`：端子表；
-5. `./output/clause_check.xlsx`：强条自检表；
-6. `./output/drawing_data.json`：全项目统一数据源。
-7. `./output/plc_tag_map.csv`：PLC 变量表映射（过程产物，供阶段4 导入变量表用；不计入阶段3 的 6 项交付物门槛，但缺失会阻断阶段4）。
+1. `./output/03-electrical/io_address.xlsx`：分配完成物理地址的IO表；
+2. `./output/03-electrical/loop_description.md`：回路说明文档；
+3. `./output/03-electrical/cable_schedule.xlsx`：电缆表及计算证据；
+4. `./output/03-electrical/terminal_list.xlsx`：端子表；
+5. `./output/03-electrical/clause_check.xlsx`：强条自检表；
+6. `./output/03-electrical/drawing_data.json`：全项目统一数据源；
+7. `./output/03-electrical/plc_tag_map.csv`、`./output/03-electrical/plc_tag_table.xml`：PLC 变量表映射与导入文件（过程产物，CSV 供追溯、XML 供阶段4 导入；不计入阶段3 的 6 项交付物门槛，但缺失会阻断阶段4）。
 
 本技能只做阶段3：地址分配、回路描述、电缆/端子表、强条技术预检、统一数据源。**不输出**EPLAN/CAD图纸、图面布局、接线图、PLC程序、HMI画面。
 
@@ -41,10 +41,10 @@ whenToUse: "当阶段2 IO/BOM 已完成，需要开展阶段3电气施工配套�
 
 | 输入 | 默认路径 | 用途 | 必需 |
 |---|---|---|---|
-| 阶段2 IO表 | `./output/io_list.xlsx` | IO-ID、信号、类型、设备标签、REQ | 是 |
-| 阶段2 BOM | `./output/bom.xlsx` | 器件型号、回路、IO关联、CPU/模块 | 是 |
+| 阶段2 IO表 | `./output/02-scheme-io-bom/io_list.xlsx` | IO-ID、信号、类型、设备标签、REQ | 是 |
+| 阶段2 BOM | `./output/02-scheme-io-bom/bom.xlsx` | 器件型号、回路、IO关联、CPU/模块 | 是 |
 | 强条库 | `./clause_library.xlsx` 或 `./input/clause_library.xlsx` | 条款ID、标准号、原文、关键词、判定规则 | 是 |
-| 阶段1需求 | `./output/requirements_spec.xlsx` | JSON中的需求汇总/追溯 | 否 |
+| 阶段1需求 | `./output/01-requirements/requirements_spec.xlsx` | JSON中的需求汇总/追溯 | 否 |
 | 地址映射 | `./address_profile.json` 或 `./input/address_profile.json` | CPU/模块物理地址布局 | 条件必需 |
 | 电缆数据 | `./cable_library.xlsx` 或电缆表内逐行参数 | 载流量、R20、X、k、绝缘/导体 | 条件必需 |
 | 用户补充 | 对话/参数 | 项目名、电压等级、短路电流、保护动作时间、预算等 | 否 |
@@ -65,14 +65,16 @@ whenToUse: "当阶段2 IO/BOM 已完成，需要开展阶段3电气施工配套�
 
 | 文件 | 固定路径 | 内容 |
 |---|---|---|
-| 地址表 | `./output/io_address.xlsx` | IO-ID↔物理地址、地址区、版本、追溯 |
-| 回路说明 | `./output/loop_description.md` | W1/W2…回路功能、器件、保护、导线 |
-| 电缆表 | `./output/cable_schedule.xlsx` | 电缆输入、计算、判定、证据 |
-| 端子表 | `./output/terminal_list.xlsx` | 10字段（含IO-ID/回路号）、一线一端子、15%备用 |
-| 强条表 | `./output/clause_check.xlsx` | 7字段、适用性、证据、初判、整改 |
-| 统一数据源 | `./output/drawing_data.json` | 需求/IO/BOM/地址/回路/电缆/端子/强条 |
+| 地址表 | `./output/03-electrical/io_address.xlsx` | IO-ID↔物理地址、地址区、版本、追溯 |
+| 回路说明 | `./output/03-electrical/loop_description.md` | W1/W2…回路功能、器件、保护、导线 |
+| 电缆表 | `./output/03-electrical/cable_schedule.xlsx` | 电缆输入、计算、判定、证据 |
+| 端子表 | `./output/03-electrical/terminal_list.xlsx` | 10字段（含IO-ID/回路号）、一线一端子、15%备用 |
+| 强条表 | `./output/03-electrical/clause_check.xlsx` | 7字段、适用性、证据、初判、整改 |
+| 统一数据源 | `./output/03-electrical/drawing_data.json` | 需求/IO/BOM/地址/回路/电缆/端子/强条 |
+| PLC 变量映射 | `./output/03-electrical/plc_tag_map.csv` | 过程产物；阶段4 符号唯一来源（不计入 6 项交付物） |
+| PLC 变量表 XML | `./output/03-electrical/plc_tag_table.xml` | 过程产物；供阶段4 `ImportPlcTagTable` 导入（排除 HMI） |
 
-先执行 `mkdir -p ./output`（Windows可用 `New-Item -ItemType Directory -Force .\output`）。
+先执行 `mkdir -p ./output/03-electrical`（Windows可用 `New-Item -ItemType Directory -Force .\output\03-electrical`）。
 
 ### 1.3 阻塞与部分输出
 
@@ -222,7 +224,7 @@ IO-ID | 信号名 | PLC符号 | 类型 | 物理地址 | 方向 | 地址区 | 字
 | 字节位 | 数字量`字节.位`；模拟量字地址；内部/HMI同物理地址或`—` |
 | 设备标签 | 继承 |
 | 备用标志 | `使用`/`备用`/`—` |
-| NC语义 | 仅开关量必填：`NO`（TRUE=动作）/`NC`（FALSE=正常）；模拟量/内部/HMI 写`—`；缺失即缺陷（阶段4 取反、阶段5 构造激励都依赖本列） |
+| NC语义 | 仅使用中的开关量必填：`NO`（TRUE=动作）/`NC`（FALSE=正常）；备用点未指定用途、模拟量、内部/HMI 写`—`；缺失即缺陷（阶段4 取反、阶段5 构造激励都依赖本列） |
 | 关联REQ-ID | 继承；备用可为`SYSTEM` |
 | 回路号 | W1/W2…；备用`—` |
 | 关联BOM-ID | 对应现场器件/模块；无则`—` |
@@ -254,12 +256,17 @@ IO-ID | 信号名 | PLC符号 | 类型 | 物理地址 | 方向 | 地址区 | 字
 | IO-002 | 上料段-输送电机-运行 | SEG01_M1_RUN | DO | Q0.0 | DO | 本体DO | 0.0 | SEG01_M1_RUN | 使用 | NO | REQ-002 | W2 | BOM-002 | ADDR-V1.0 | — |
 | IO-003 | 温度传感器-1 | TT101_AI | AI | IW64 | AI | AI过程映像 | 64 | TT101 | 使用 | — | REQ-003 | W5 | BOM-020 | ADDR-V1.0 | 4-20mA |
 | IO-004 | 自动模式状态 | HMI_AutoMode | HMI | — | HMI | HMI | — | HMI_AutoMode | — | — | REQ-004 | W1 | — | ADDR-V1.0 | 不占通道 |
-| IO-005 | 备用-DI-01 | SPARE_DI_01 | DI | I1.6 | DI | 本体DI | 1.6 | SPARE_DI_01 | 备用 | NC | SYSTEM | — | — | ADDR-V1.0 | 类型末尾 |
+| IO-005 | 备用-DI-01 | SPARE_DI_01 | DI | I1.6 | DI | 本体DI | 1.6 | SPARE_DI_01 | 备用 | — | SYSTEM | — | — | ADDR-V1.0 | 类型末尾 |
 
 ---
-### 3.8 PLC 变量表映射（plc_tag_map.csv）
+### 3.8 PLC 变量表映射（plc_tag_map.csv / plc_tag_table.xml）
 
-地址表定稿后，必须同步导出 `./output/plc_tag_map.csv`（UTF-8 BOM、逗号分隔）。它是**阶段4 导入 PLC 变量表的唯一来源**，也是阶段5 追溯矩阵 `CODE-ID` 关联的依据。
+地址表定稿后，必须同步导出两份文件：
+
+- `./output/03-electrical/plc_tag_map.csv`（UTF-8 BOM、逗号分隔）：全量映射，含 HMI 与备用行，供追溯与人工核对；
+- `./output/03-electrical/plc_tag_table.xml`（UTF-8 BOM）：仅 PLC 变量（DI/DO/AI/AO/内部），排除 HMI；供阶段4 `ImportPlcTagTable` 直接导入。
+
+CSV 列固定：
 
 ```text
 IO-ID,Symbol,Address,DataType,Direction,NcSemantic,REQ-ID
@@ -270,10 +277,14 @@ IO-003,TT101_AI,IW64,Int,AI,—,REQ-003
 
 规则：
 
-1. 行数 = `io_address.xlsx` 主表行数（含备用行，备用行 `REQ-ID=SYSTEM`）；
-2. `Symbol` 与地址表 `PLC符号` 逐字一致，工程内唯一，阶段4 不得改名校验；
-3. `DataType`：DI/DO→`Bool`；AI/AO 取接口契约或模块通道类型（`Int`/`Real`/`Word`），不得按"模拟量"三个字猜；
-4. 本文件与地址表不一致或缺失 → 阶段4 按 `E07_*` 阻断（见 `plc-scl-gen-04` §2.2）。
+1. `plc_tag_map.csv` 行数 = `io_address.xlsx` 主表行数（含备用行与 HMI；备用行 `REQ-ID=SYSTEM`，HMI 行 `REQ-ID` 按需求）。
+2. `Symbol` 与地址表 `PLC符号` 逐字一致，工程内唯一，阶段4 不得改名校验。
+3. `DataType` 按类型确定，不得按“模拟量”三个字猜：
+   - DI/DO、内部 M 位：`Bool`；
+   - AI/AO、内部 MW 字：`Int`/`Real`/`Word`，取接口契约或模块通道类型；
+   - HMI：`—`（不进入 PLC 变量表；如需 HMI 标签表，另出清单，不在本文件导入）。
+4. `plc_tag_table.xml` 由 CSV 生成，标签数 = CSV 行数 − HMI 行数；`name`=`Symbol`、`logicalAddress`=`Address`、`dataTypeName`=`DataType`。生成方式：调用 `BuildPlcTagTableXml`（输入 `{tableName,tags:[...]}`，表名由契约/用户指定，默认 `PLC_Tags`），或使用等价本地转换器；禁止手写 XML。
+5. `plc_tag_table.xml` 与 CSV/地址表不一致，或缺失、含 `DataType=TBD` → 阶段4 按 `E07_*` 阻断（见 `plc-scl-gen-04` §2.2）。
 
 ---
 
@@ -482,7 +493,7 @@ S_min = Isc × √t / k
 
 ## 6. 端子表（terminal_list.xlsx）
 
-### 6.1 固定字段（8列，顺序固定）
+### 6.1 固定字段（10列，顺序固定）
 
 ```text
 TERM-ID | 端子排 | 端子号 | 线号 | IO-ID | 回路号 | 信号名称 | 导线截面 | 颜色 | 对接端子
@@ -784,7 +795,7 @@ JSON使用UTF-8、缩进2空格、无注释；所有ID与xlsx一致。
 - [ ] loop_description 每条W有功能/器件/保护/导线/REQ/IO。
 - [ ] 电缆表每条有输入、公式、电流、载流量、压降%、热稳定、判定、来源。
 - [ ] 动力/24V压降≤5%；载流量>计算电流；动力热稳定满足或待人工判定。
-- [ ] 端子表8列；X1电源/X2输入/X3输出/X4安全；一线一端子；每排≥15%备用。
+- [ ] 端子表10列；X1电源/X2输入/X3输出/X4安全；一线一端子；每排≥15%备用。
 - [ ] 端子`对接端子`合法；线号唯一/最多两次且互指；截面/颜色有值。
 - [ ] 强条表7列；CLAUSE-ID/标准号/摘要来自库；无编造。
 - [ ] 强条证据可定位；`初步判定`不冒充合规结论；`待人工判定`已列open_items。
@@ -869,7 +880,7 @@ JSON使用UTF-8、缩进2空格、无注释；所有ID与xlsx一致。
 ## 附录 B：io_address 主表模板
 
 ```text
-IO-ID | 信号名 | 类型 | 物理地址 | 地址区 | 字节位 | 设备标签 | 备用标志 | 关联REQ-ID | 回路号 | 关联BOM-ID | 地址版本 | 备注
+IO-ID | 信号名 | PLC符号 | 类型 | 物理地址 | 方向 | 地址区 | 字节位 | 设备标签 | 备用标志 | NC语义 | 关联REQ-ID | 回路号 | 关联BOM-ID | 地址版本 | 备注
 ```
 
 ## 附录 C：cable_schedule 主表/依据模板
@@ -981,7 +992,7 @@ CLAUSE-ID | 标准编号 | 条款摘要 | 适用性 | 设计证据 | 初步判�
 
 地址表写了符号、PLC 变量表却没有同名符号，程序下载后表现为"编译通过但读写的是空地址"。
 
-- `plc_tag_map.csv` 与 `io_address.xlsx` 的 `PLC符号` 必须逐字一致（脚本比对，不靠眼）；
+- `plc_tag_map.csv`/`plc_tag_table.xml` 与 `io_address.xlsx` 的 `PLC符号` 必须逐字一致（脚本比对，不靠眼）；
 - 由本阶段统一生成符号，阶段4 禁止再改名或另建 `SIG_IO_xxx` 兜底。
 
 ### Z.4 备用率用未舍入值判定（EL-04 · 强制）

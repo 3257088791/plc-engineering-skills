@@ -22,7 +22,9 @@ except Exception:
 TARGETS = {
     "auto-flow-master-00/assets/checkers": ["check_stage4.py", "check_stage5.py"],
     "sim-trace-05/assets": ["validate_stage5.py"],
-    "eval-archive-06/assets": ["validate_stage6.py"],
+    "eval-archive-06/assets": [
+        "stage6_collect.py", "stage6_render.py", "validate_stage6.py",
+    ],
 }
 
 
@@ -48,7 +50,9 @@ def main() -> int:
                 continue
             lines.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {name}")
         if lines:
-            (d / "SHA256SUMS.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
+            p = d / "SHA256SUMS.txt"
+            with p.open("w", encoding="utf-8", newline="\n") as f:
+                f.write("\n".join(lines) + "\n")
             print(f"WROTE {rel}/SHA256SUMS.txt  ({len(lines)} 项)")
     return 0
 

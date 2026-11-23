@@ -1,4 +1,4 @@
-# ./output/_stage6/stage6_collect.py
+# ./output/06-eval-archive/_work/stage6_collect.py
 """采集五阶段交付物与补充统计，计算指标/工时/成本/风险/归档，输出 eval_data.json。
 只读上游文件；所有数值必须能回指来源，缺数据标"待统计"。"""
 import hashlib
@@ -10,27 +10,27 @@ from pathlib import Path
 from openpyxl import load_workbook
 
 OUT = Path("./output")
-STAGE = OUT / "_stage6"
+STAGE = OUT / "06-eval-archive" / "_work"
 ROOT = Path(".")
 
 EXPECTED = [
-    (1, "需求规格表", "output/requirements_spec.xlsx", "REQ"),
-    (1, "澄清日志", "output/clarification_shturl.md", "REQ"),
-    (2, "控制方案", "output/scheme.md", "—"),
-    (2, "IO清单", "output/io_list.xlsx", "IO"),
-    (2, "BOM", "output/bom.xlsx", "BOM"),
-    (2, "多维自检报告", "output/multi_check_report.md", "—"),
-    (3, "IO地址表", "output/io_address.xlsx", "IO"),
-    (3, "回路说明", "output/loop_description.md", "—"),
-    (3, "电缆表", "output/cable_schedule.xlsx", "—"),
-    (3, "端子表", "output/terminal_list.xlsx", "TERM"),
-    (3, "强条自检", "output/clause_check.xlsx", "—"),
-    (3, "统一数据源", "output/drawing_data.json", "IO/BOM/TERM"),
-    (4, "SCL源文件", "output/src/*.scl", "CODE"),
-    (4, "编译修复日志", "output/compilation_fix_shturl", "CODE"),
-    (5, "测试步骤", "output/test_steps.csv", "TEST"),
-    (5, "测试结果", "output/results.xlsx", "TEST"),
-    (5, "追溯矩阵", "output/traceability_matrix.xlsx", "TEST"),
+    (1, "需求规格表", "output/01-requirements/requirements_spec.xlsx", "REQ"),
+    (1, "澄清日志", "output/01-requirements/clarification_shturl.md", "REQ"),
+    (2, "控制方案", "output/02-scheme-io-bom/scheme.md", "—"),
+    (2, "IO清单", "output/02-scheme-io-bom/io_list.xlsx", "IO"),
+    (2, "BOM", "output/02-scheme-io-bom/bom.xlsx", "BOM"),
+    (2, "多维自检报告", "output/02-scheme-io-bom/multi_check_report.md", "—"),
+    (3, "IO地址表", "output/03-electrical/io_address.xlsx", "IO"),
+    (3, "回路说明", "output/03-electrical/loop_description.md", "—"),
+    (3, "电缆表", "output/03-electrical/cable_schedule.xlsx", "—"),
+    (3, "端子表", "output/03-electrical/terminal_list.xlsx", "TERM"),
+    (3, "强条自检", "output/03-electrical/clause_check.xlsx", "—"),
+    (3, "统一数据源", "output/03-electrical/drawing_data.json", "IO/BOM/TERM"),
+    (4, "SCL源文件", "output/04-scl/src/*.scl", "CODE"),
+    (4, "编译修复日志", "output/04-scl/compilation_fix_shturl", "CODE"),
+    (5, "测试步骤", "output/05-sim-trace/test_steps.csv", "TEST"),
+    (5, "测试结果", "output/05-sim-trace/results.xlsx", "TEST"),
+    (5, "追溯矩阵", "output/05-sim-trace/traceability_matrix.xlsx", "TEST"),
 ]
 
 METRICS = []
@@ -106,7 +106,7 @@ def main():
     # ---------- 补充统计与统一数据源（先读，供归档版本/责任人使用） ----------
     stats = {}
     stats_source = "未提供"
-    for p in (STAGE / "stats.json", Path("./input/stage6_stats.json")):
+    for p in (Path("./input/stage6_stats.json"), OUT / "06-eval-archive" / "inputs" / "stats.json"):
         if p.exists():
             try:
                 stats = load_json(p)
@@ -117,9 +117,9 @@ def main():
     stats = stats or {}
     owners = stats.get("responsibility", {})
     dd = {}
-    if (OUT / "drawing_data.json").exists():
+    if (OUT / "03-electrical" / "drawing_data.json").exists():
         try:
-            dd = load_json(OUT / "drawing_data.json")
+            dd = load_json(OUT / "03-electrical" / "drawing_data.json")
         except Exception:
             dd = {}
 
@@ -129,7 +129,7 @@ def main():
         p = ROOT / rel
         exists, size, mtime, digest, status, note = False, 0, "—", "—", "缺失", ""
         if rel.endswith("*.scl"):
-            files = sorted(OUT.glob("src/*.scl"))
+            files = sorted((OUT / "04-scl" / "src").glob("*.scl"))
             exists = bool(files)
             size = sum(f.stat().st_size for f in files)
             mtime = datetime.fromtimestamp(files[0].stat().st_mtime).isoformat(timespec="seconds") if files else "—"
@@ -143,7 +143,7 @@ def main():
             status, note = "空文件", "文件存在但大小为 0"
         else:
             note = "约定路径未发现"
-            alt = OUT / "clarification_shturl"
+            alt = OUT / "01-requirements" / "clarification_shturl"
             if rel.endswith("clarification_shturl.md") and alt.exists():
                 exists = True
                 status = "存在"
@@ -166,7 +166,7 @@ def main():
 
     # ---------- M-01 需求规格覆盖率 ----------
     def m01():
-        rows = read_rows(OUT / "requirements_spec.xlsx", ["REQ-ID", "验收准则"])
+        rows = read_rows(OUT / "01-requirements" / "requirements_spec.xlsx", ["REQ-ID", "验收准则"])
         active = [r for r in rows if r.get("状态") != "已关闭"]
         need = ["REQ-ID", "需求内容", "验收准则", "优先级", "关联IO占位", "状态"]
         good = 0
@@ -181,9 +181,9 @@ def main():
 
     # ---------- M-02 需求缺陷检出率 ----------
     def m02():
-        p = OUT / "clarification_shturl.md"
+        p = OUT / "01-requirements" / "clarification_shturl.md"
         if not p.exists():
-            p = OUT / "clarification_shturl"
+            p = OUT / "01-requirements" / "clarification_shturl"
         if not p.exists():
             raise FileNotFoundError("clarification_shturl(.md)")
         rows = [l for l in p.read_text(encoding="utf-8").splitlines()
@@ -203,19 +203,19 @@ def main():
     # ---------- 共享数据 ----------
     bom_rows = []
     try:
-        bom_rows = read_rows(OUT / "bom.xlsx", ["BOM-ID", "型号"])
+        bom_rows = read_rows(OUT / "02-scheme-io-bom" / "bom.xlsx", ["BOM-ID", "型号"])
     except Exception:
         pass
     phys = []
     try:
-        iol = read_rows(OUT / "io_list.xlsx", ["IO-ID", "类型"])
+        iol = read_rows(OUT / "02-scheme-io-bom" / "io_list.xlsx", ["IO-ID", "类型"])
         phys = [r for r in iol if r.get("类型") in ("DI", "DO", "AI", "AO")]
     except Exception:
         iol = []
 
     # ---------- M-03 IO点表准确率 ----------
     def m03():
-        ioa = {r["IO-ID"]: r for r in read_rows(OUT / "io_address.xlsx", ["IO-ID", "物理地址"])}
+        ioa = {r["IO-ID"]: r for r in read_rows(OUT / "03-electrical" / "io_address.xlsx", ["IO-ID", "物理地址"])}
         io_map = {i["io_id"]: i for i in dd.get("io", [])}
         addr = {a["io_id"]: a.get("address") for a in dd.get("addresses", [])}
         if not iol or not dd:
@@ -268,7 +268,7 @@ def main():
     # ---------- 强条 ----------
     clause_rows = []
     try:
-        clause_rows = read_rows(OUT / "clause_check.xlsx", ["CLAUSE-ID", "初步判定"])
+        clause_rows = read_rows(OUT / "03-electrical" / "clause_check.xlsx", ["CLAUSE-ID", "初步判定"])
     except Exception:
         pass
 
@@ -287,7 +287,7 @@ def main():
         if not appl:
             raise ValueError("无适用条款")
         try:
-            remed = read_rows(OUT / "clause_check.xlsx", ["CLAUSE-ID", "整改前判定"],
+            remed = read_rows(OUT / "03-electrical" / "clause_check.xlsx", ["CLAUSE-ID", "整改前判定"],
                               sheet="02-整改记录")
         except Exception:
             remed = dd.get("remediation_log") or []
@@ -309,7 +309,7 @@ def main():
 
     # ---------- 编译 ----------
     def compile_text():
-        p = OUT / "compilation_fix_shturl"
+        p = OUT / "04-scl" / "compilation_fix_shturl"
         if not p.exists():
             raise FileNotFoundError("compilation_fix_shturl")
         return p.read_text(encoding="utf-8", errors="replace")
@@ -340,7 +340,7 @@ def main():
     # ---------- M-10 测试 ----------
     test_rows = []
     try:
-        test_rows = read_rows(OUT / "results.xlsx", ["TEST-ID", "判定结果"])
+        test_rows = read_rows(OUT / "05-sim-trace" / "results.xlsx", ["TEST-ID", "判定结果"])
     except Exception:
         pass
 
@@ -359,7 +359,7 @@ def main():
 
     # ---------- M-11 追溯 ----------
     def m11():
-        wb = load_workbook(OUT / "traceability_matrix.xlsx", data_only=True)
+        wb = load_workbook(OUT / "05-sim-trace" / "traceability_matrix.xlsx", data_only=True)
         kv = {}
         if "00-说明" in wb.sheetnames:
             for r in wb["00-说明"].iter_rows(values_only=True):
@@ -565,7 +565,7 @@ def main():
     req_text = ""
     try:
         req_text = " ".join(r.get("需求内容", "") + r.get("验收准则", "")
-                             for r in read_rows(OUT / "requirements_spec.xlsx", ["REQ-ID", "验收准则"]))
+                             for r in read_rows(OUT / "01-requirements" / "requirements_spec.xlsx", ["REQ-ID", "验收准则"]))
     except Exception:
         pass
     checks = [
@@ -617,15 +617,15 @@ def main():
     # ---------- 归档覆盖 ----------
     matrix_rows = []
     try:
-        matrix_rows = read_rows(OUT / "traceability_matrix.xlsx",
+        matrix_rows = read_rows(OUT / "05-sim-trace" / "traceability_matrix.xlsx",
                                 ["REQ-ID", "IO-ID", "TEST-ID"], sheet="01-追溯矩阵")
     except Exception:
         pass
     node_counts = {}
     for key in ("REQ-ID", "IO-ID", "BOM-ID", "TERM-ID", "CODE-ID", "TEST-ID"):
         node_counts[key.replace("-ID", "")] = len({r.get(key, "") for r in matrix_rows if r.get(key)})
-    rep = {1: "output/requirements_spec.xlsx", 4: "output/src/*.scl",
-           5: "output/test_steps.csv"}
+    rep = {1: "output/01-requirements/requirements_spec.xlsx", 4: "output/04-scl/src/*.scl",
+           5: "output/05-sim-trace/test_steps.csv"}
     coverage = {}
     for it in items:
         coverage.setdefault(it["node"], []).append(it["status"])
@@ -647,7 +647,7 @@ def main():
             continue
         p = ROOT / it["path"]
         if p.exists() and p.is_file():
-            inputs[p.name] = sha(p)
+            inputs[it["path"]] = sha(p)
 
     counts = {
         "computed": sum(1 for m in METRICS if m["status"] == "已计算"),

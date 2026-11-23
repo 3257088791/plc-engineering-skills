@@ -46,8 +46,8 @@ whenToUse: "当用户提供自动化、PLC 控制或机电一体化项目的客�
 
 | 文件 | 固定路径 | 生成时机 |
 |---|---|---|
-| 需求规格表 | `./output/requirements_spec.xlsx` | 澄清完成，或模拟模式完成一轮闭环后 |
-| 澄清问答日志 | `./output/clarification_shturl.md` | 每轮都写；等待模式下也要写 |
+| 需求规格表 | `./output/01-requirements/requirements_spec.xlsx` | 澄清完成，或模拟模式完成一轮闭环后 |
+| 澄清问答日志 | `./output/01-requirements/clarification_shturl.md` | 每轮都写；等待模式下也要写 |
 
 注意：日志文件名中的 `shturl` 是需求指定的固定拼写，**不要改成 shorturl 或其他名字**。
 
@@ -69,13 +69,13 @@ whenToUse: "当用户提供自动化、PLC 控制或机电一体化项目的客�
 先执行等价于下面的命令，确保输出目录存在：
 
 ```bash
-mkdir -p ./output
+mkdir -p ./output/01-requirements
 ```
 
 Windows PowerShell 可用：
 
 ```powershell
-New-Item -ItemType Directory -Force -Path .\output | Out-Null
+New-Item -ItemType Directory -Force -Path .\output\01-requirements | Out-Null
 ```
 
 然后再读写文件。不要先把文件写到别处再声称路径正确。
@@ -98,7 +98,7 @@ New-Item -ItemType Directory -Force -Path .\output | Out-Null
 
 同时在日志中说明缺什么、为什么无法继续。不要用“常规做法”补齐后再生成规格表。
 
-4. 读取既有 `./output/requirements_spec.xlsx` 和 `./output/clarification_shturl.md`（如果存在），确定下一个 REQ-ID、Q-ID、CON-ID 和轮次。读取规则见第 6.1 节。
+4. 读取既有 `./output/01-requirements/requirements_spec.xlsx` 和 `./output/01-requirements/clarification_shturl.md`（如果存在），确定下一个 REQ-ID、Q-ID、CON-ID 和轮次。读取规则见第 6.1 节。
 
 ### 2.2 第二步：拆成候选条目
 
@@ -498,7 +498,7 @@ D. 其他：请说明对象与复位方式。
 ### 6.1 续号
 
 - REQ-ID 全局唯一，跨轮次不重号、不复用。
-- 读取已有 `./output/requirements_spec.xlsx`，取所有工作表中出现的最大 `REQ-<数字>`，下一条为 `max + 1`。
+- 读取已有 `./output/01-requirements/requirements_spec.xlsx`，取所有工作表中出现的最大 `REQ-<数字>`，下一条为 `max + 1`。
 - 文件不存在时从 `REQ-001` 开始。
 - 至少补足 3 位：`REQ-001`…`REQ-999`，之后 `REQ-1000`；不要回绕。
 - 即使中间有缺口，也不要用缺口号；只取最大值续号。

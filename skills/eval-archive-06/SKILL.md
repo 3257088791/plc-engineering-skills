@@ -50,24 +50,24 @@ whenToUse: "当五个阶段的交付物已产出，需要做全流程工时/成�
 
 | 阶段 | 输入 | 默认路径 | 用途 |
 |---|---|---|---|
-| 1 | 需求规格表 | `./output/requirements_spec.xlsx` | REQ 总数、六字段完整度、状态 |
-| 1 | 澄清日志 | `./output/clarification_shturl.md`（兼容无扩展名） | 问题数、闭环数、冲突/遗漏记录 |
-| 2 | 控制方案 | `./output/scheme.md` | 工艺段、产能/工位数、方案边界 |
-| 2 | IO 清单 | `./output/io_list.xlsx` | 物理/内部/HMI 信号、REQ 关联 |
-| 2 | BOM | `./output/bom.xlsx` | 物料、数量、单价/小计、待询价 |
-| 2 | 多维自检报告 | `./output/multi_check_report.md` | 自检结论与问题数 |
-| 3 | IO 地址表 | `./output/io_address.xlsx` | 物理地址、类型、REQ |
-| 3 | 回路说明 | `./output/loop_description.md` | 回路/保护/器件 |
-| 3 | 电缆表 | `./output/cable_schedule.xlsx` | 电缆计算与判定 |
-| 3 | 端子表 | `./output/terminal_list.xlsx` | 端子/线号/对接 |
-| 3 | 强条自检 | `./output/clause_check.xlsx` | 适用性、初步判定、整改建议 |
-| 3 | 统一数据源 | `./output/drawing_data.json` | IO/BOM/端子/追溯/版本 |
-| 4 | SCL 源文件 | `./output/src/*.scl` | 块清单、CODE-ID |
-| 4 | 编译修复日志 | `./output/compilation_fix_shturl` | 轮次、错误数、最终状态 |
-| 5 | 测试步骤 | `./output/test_steps.csv` | 用例数与场景分布 |
-| 5 | 测试结果 | `./output/results.xlsx` | 通过/失败/未执行/阻塞 |
-| 5 | 追溯矩阵 | `./output/traceability_matrix.xlsx` | 六节点覆盖与覆盖率 |
-| 补充 | 统计记录 | `./output/_stage6/stats.json`（或 `./input/stage6_stats.json`） | 耗时、人工工时、模型成本、一次性成本、基准 |
+| 1 | 需求规格表 | `./output/01-requirements/requirements_spec.xlsx` | REQ 总数、六字段完整度、状态 |
+| 1 | 澄清日志 | `./output/01-requirements/clarification_shturl.md`（兼容无扩展名） | 问题数、闭环数、冲突/遗漏记录 |
+| 2 | 控制方案 | `./output/02-scheme-io-bom/scheme.md` | 工艺段、产能/工位数、方案边界 |
+| 2 | IO 清单 | `./output/02-scheme-io-bom/io_list.xlsx` | 物理/内部/HMI 信号、REQ 关联 |
+| 2 | BOM | `./output/02-scheme-io-bom/bom.xlsx` | 物料、数量、单价/小计、待询价 |
+| 2 | 多维自检报告 | `./output/02-scheme-io-bom/multi_check_report.md` | 自检结论与问题数 |
+| 3 | IO 地址表 | `./output/03-electrical/io_address.xlsx` | 物理地址、类型、REQ |
+| 3 | 回路说明 | `./output/03-electrical/loop_description.md` | 回路/保护/器件 |
+| 3 | 电缆表 | `./output/03-electrical/cable_schedule.xlsx` | 电缆计算与判定 |
+| 3 | 端子表 | `./output/03-electrical/terminal_list.xlsx` | 端子/线号/对接 |
+| 3 | 强条自检 | `./output/03-electrical/clause_check.xlsx` | 适用性、初步判定、整改建议 |
+| 3 | 统一数据源 | `./output/03-electrical/drawing_data.json` | IO/BOM/端子/追溯/版本 |
+| 4 | SCL 源文件 | `./output/04-scl/src/*.scl` | 块清单、CODE-ID |
+| 4 | 编译修复日志 | `./output/04-scl/compilation_fix_shturl` | 轮次、错误数、最终状态 |
+| 5 | 测试步骤 | `./output/05-sim-trace/test_steps.csv` | 用例数与场景分布 |
+| 5 | 测试结果 | `./output/05-sim-trace/results.xlsx` | 通过/失败/未执行/阻塞 |
+| 5 | 追溯矩阵 | `./output/05-sim-trace/traceability_matrix.xlsx` | 六节点覆盖与覆盖率 |
+| 补充 | 统计记录 | `./input/stage6_stats.json`（回退 `./output/06-eval-archive/inputs/stats.json`） | 耗时、人工工时、模型成本、一次性成本、基准 |
 | 可选 | 器件库 | `./device_library.xlsx` | 交期、替代料、型号回查 |
 
 路径规则：
@@ -118,21 +118,21 @@ whenToUse: "当五个阶段的交付物已产出，需要做全流程工时/成�
 
 | 输出 | 固定路径 | 格式 |
 |---|---|---|
-| 综合评估报告 | `./output/project_evaluation_report.md` | Markdown，数值全部抄自 `eval_data.json` |
-| 质量指标汇总表 | `./output/quality_metrics_summary.xlsx` | 真实 xlsx，5 张表：`00-说明`、`01-指标台账`、`02-工时成本`、`03-风险清单`、`04-归档核对` |
-| 归档目录清单 | `./output/project_archive_list.md` | Markdown，含目录树、文件表、节点覆盖、缺失项、模板 |
+| 综合评估报告 | `./output/06-eval-archive/project_evaluation_report.md` | Markdown，数值全部抄自 `eval_data.json` |
+| 质量指标汇总表 | `./output/06-eval-archive/quality_metrics_summary.xlsx` | 真实 xlsx，5 张表：`00-说明`、`01-指标台账`、`02-工时成本`、`03-风险清单`、`04-归档核对` |
+| 归档目录清单 | `./output/06-eval-archive/project_archive_list.md` | Markdown，含目录树、文件表、节点覆盖、缺失项、模板 |
 
 过程数据（非交付物）：
 
 ```text
-./output/_stage6/
+./output/06-eval-archive/_work/
 ├── eval_data.json        # 唯一计算源：指标、工时、成本、风险、归档、哈希、指纹
 ├── stage6_collect.py     # 采集计算脚本
 ├── stage6_render.py      # xlsx 与归档清单渲染脚本
 └── validate_stage6.py    # 只读校验
 ```
 
-脚本随技能 `assets/` 提供：复制到 `./output/_stage6/` 后运行（见 §8），不要凭记忆重写；确需改写时保持输出列名与口径不变。
+脚本随技能 `assets/` 提供：复制到 `./output/06-eval-archive/_work/` 后运行（见 §8），不要凭记忆重写；确需改写时保持输出列名与口径不变。
 
 - 报告中的每个数值都必须能在 `eval_data.json` 找到同名字段；不得在报告里做二次计算。
 - 指纹：`eval_data.json` 去除 `fingerprint` 字段后按 `sort_keys` 规范化计算的 SHA256，前 16 位写入报告与 `00-说明`。
@@ -260,7 +260,7 @@ BOM 成本处理：
 | `M-09` | 代码 | 编译最终通过率 | 最终 0 error → 100%；失败 0%；未执行 → `未执行` | `compilation_fix_shturl` | 日志缺失 → `待统计` |
 | `M-10` | 测试 | 仿真测试步骤通过率 | 通过用例数 ÷ 已执行用例数（备注给 ÷ 总数） | `results.xlsx` | 全未执行 → `未执行`；无结果 → `待统计` |
 | `M-11` | 追溯 | 综合追溯覆盖率 | min(需求测试覆盖率、链路完整率、结果覆盖率)；**指标名与 `auto-flow-master-00` §12.3 G5-05 逐字一致**，报告与 eval_data.json 都用此名 | `traceability_matrix.xlsx` | 缺失 → `待统计` |
-| `M-12` | 图纸 | 图纸一次审核通过率（占位指标） | 本流程未出图 → `未开展` | `drawing_data.json` 仅数据 | 固定 `未开展`，不计入"已计算"统计 |
+| `M-12` | 图纸 | 图纸一次审核通过率（占位指标） | 本流程未出图 → `不适用` | `drawing_data.json` 仅数据 | 固定 `不适用`，不计入"已计算"统计；如项目含图纸阶段，另立指标 |
 | `M-13` | 设计 | IO-BOM关联覆盖率（附加） | 有 BOM 关联的物理 IO 数 ÷ 物理 IO 数 | `drawing_data.json`、`bom.xlsx` | 缺失 → `待统计` |
 | `M-14` | 归档 | 归档完整率（附加） | 存在的约定交付物数 ÷ 约定交付物总数（阶段1–5） | 文件系统 + 清单 | 恒可算 |
 
@@ -294,7 +294,7 @@ IO 级通过 = ①–④ 全过且 ⑤ 通过或跳过。分母只含物理 IO�
 
 **M-11**：优先读矩阵 `00-说明` 中的三项覆盖率；缺失时用 `01-追溯矩阵` 重算：需求覆盖 = 有 TEST 的 REQ ÷ 矩阵 REQ；链路完整 = `完整` 行 ÷ 总行；结果覆盖 = 有判定的 TEST ÷ 用例数。取三者最小值。
 
-**M-12**：本流程未产出 EPLAN/CAD 图面（阶段3只出数据），固定 `未开展`；备注“图面布局/排版需人工完成”。
+**M-12**：本流程未产出 EPLAN/CAD 图面（阶段3只出数据），固定 `不适用`；备注“图面布局/排版需人工完成；如项目含图纸阶段，另立指标”。
 
 **M-13**：物理 IO 在 `drawing_data.io[].bom_id` 或 `bom.关联IO-ID` 中命中即算关联；`SYSTEM` 不算物理 IO 关联。
 
@@ -388,23 +388,23 @@ RISK-ID | 类别 | 风险描述 | 关联交付物 | 风险等级 | 判定依据 
 
 | 阶段 | 交付物 | 路径 | 必需 |
 |---|---|---|---|
-| 1 | 需求规格表 | `output/requirements_spec.xlsx` | 是 |
-| 1 | 澄清日志 | `output/clarification_shturl.md` | 是 |
-| 2 | 控制方案 | `output/scheme.md` | 是 |
-| 2 | IO 清单 | `output/io_list.xlsx` | 是 |
-| 2 | BOM | `output/bom.xlsx` | 是 |
-| 2 | 多维自检报告 | `output/multi_check_report.md` | 是 |
-| 3 | IO 地址表 | `output/io_address.xlsx` | 是 |
-| 3 | 回路说明 | `output/loop_description.md` | 是 |
-| 3 | 电缆表 | `output/cable_schedule.xlsx` | 是 |
-| 3 | 端子表 | `output/terminal_list.xlsx` | 是 |
-| 3 | 强条自检 | `output/clause_check.xlsx` | 是 |
-| 3 | 统一数据源 | `output/drawing_data.json` | 是 |
-| 4 | SCL 源文件 | `output/src/*.scl`（≥1） | 是 |
-| 4 | 编译修复日志 | `output/compilation_fix_shturl` | 是 |
-| 5 | 测试步骤 | `output/test_steps.csv` | 是 |
-| 5 | 测试结果 | `output/results.xlsx` | 是 |
-| 5 | 追溯矩阵 | `output/traceability_matrix.xlsx` | 是 |
+| 1 | 需求规格表 | `output/01-requirements/requirements_spec.xlsx` | 是 |
+| 1 | 澄清日志 | `output/01-requirements/clarification_shturl.md` | 是 |
+| 2 | 控制方案 | `output/02-scheme-io-bom/scheme.md` | 是 |
+| 2 | IO 清单 | `output/02-scheme-io-bom/io_list.xlsx` | 是 |
+| 2 | BOM | `output/02-scheme-io-bom/bom.xlsx` | 是 |
+| 2 | 多维自检报告 | `output/02-scheme-io-bom/multi_check_report.md` | 是 |
+| 3 | IO 地址表 | `output/03-electrical/io_address.xlsx` | 是 |
+| 3 | 回路说明 | `output/03-electrical/loop_description.md` | 是 |
+| 3 | 电缆表 | `output/03-electrical/cable_schedule.xlsx` | 是 |
+| 3 | 端子表 | `output/03-electrical/terminal_list.xlsx` | 是 |
+| 3 | 强条自检 | `output/03-electrical/clause_check.xlsx` | 是 |
+| 3 | 统一数据源 | `output/03-electrical/drawing_data.json` | 是 |
+| 4 | SCL 源文件 | `output/04-scl/src/*.scl`（≥1） | 是 |
+| 4 | 编译修复日志 | `output/04-scl/compilation_fix_shturl` | 是 |
+| 5 | 测试步骤 | `output/05-sim-trace/test_steps.csv` | 是 |
+| 5 | 测试结果 | `output/05-sim-trace/results.xlsx` | 是 |
+| 5 | 追溯矩阵 | `output/05-sim-trace/traceability_matrix.xlsx` | 是 |
 | 4/5 | 可选：`plc_tag_map.csv`、`code_req_map.csv` | 同名 | 否 |
 
 - 兼容 `clarification_shturl`（无扩展名）时按同一项处理并在备注注明实际文件名。
@@ -415,12 +415,12 @@ RISK-ID | 类别 | 风险描述 | 关联交付物 | 风险等级 | 判定依据 
 ```text
 archive/<project_id>/
 ├── 00-归档说明.md            # 本清单 + 校验说明 + 版本
-├── 01-需求/                  # requirements_spec.xlsx、clarification_shturl.md
-├── 02-方案与BOM/             # scheme.md、io_list.xlsx、bom.xlsx、multi_check_report.md
-├── 03-电气设计/              # io_address.xlsx、loop_description.md、cable_schedule.xlsx、terminal_list.xlsx、clause_check.xlsx、drawing_data.json
-├── 04-程序/                  # src/*.scl、compilation_fix_shturl（+ plc_tag_map.csv）
-├── 05-仿真验证/              # test_steps.csv、results.xlsx、traceability_matrix.xlsx（+ code_req_map.csv）
-├── 06-评估/                  # project_evaluation_report.md、quality_metrics_summary.xlsx、project_archive_list.md
+├── 01-requirements/          # requirements_spec.xlsx、clarification_shturl.md
+├── 02-scheme-io-bom/         # scheme.md、io_list.xlsx、bom.xlsx、multi_check_report.md
+├── 03-electrical/            # io_address.xlsx、loop_description.md、cable_schedule.xlsx、terminal_list.xlsx、clause_check.xlsx、drawing_data.json
+├── 04-scl/                   # src/*.scl、compilation_fix_shturl（+ plc_tag_map.csv）
+├── 05-sim-trace/             # test_steps.csv、results.xlsx、traceability_matrix.xlsx（+ code_req_map.csv）
+├── 06-eval-archive/          # project_evaluation_report.md、quality_metrics_summary.xlsx、project_archive_list.md
 └── _manifest/SHA256SUMS.txt  # 相对路径 + SHA256
 ```
 
@@ -542,7 +542,7 @@ archive/<project_id>/
 
 | 脚本 | 作用 | 输入 | 输出 |
 |---|---|---|---|
-| `stage6_collect.py` | 采集、计算、哈希、指纹 | 五阶段交付物 + `stats.json` | `_stage6/eval_data.json` |
+| `stage6_collect.py` | 采集、计算、哈希、指纹 | 五阶段交付物 + `stats.json` | `06-eval-archive/_work/eval_data.json` |
 | `stage6_render.py` | 渲染指标表与归档清单 | `eval_data.json` | `quality_metrics_summary.xlsx`、`project_archive_list.md` |
 | `validate_stage6.py` | 只读校验 | 三份输出 + `eval_data.json` | PASS/FAIL 与问题清单 |
 
@@ -550,18 +550,18 @@ archive/<project_id>/
 
 ```powershell
 $py = 'python'   # 或项目可用的 Python 3 解释器
-New-Item -ItemType Directory -Force -Path '.\output\_stage6' | Out-Null
-Copy-Item '<技能目录>\assets\stage6_collect.py'  '.\output\_stage6\' -Force
-Copy-Item '<技能目录>\assets\stage6_render.py'   '.\output\_stage6\' -Force
-Copy-Item '<技能目录>\assets\validate_stage6.py' '.\output\_stage6\' -Force
+New-Item -ItemType Directory -Force -Path '.\output\06-eval-archive\_work' | Out-Null
+Copy-Item '<技能目录>\assets\stage6_collect.py'  '.\output\06-eval-archive\_work\' -Force
+Copy-Item '<技能目录>\assets\stage6_render.py'   '.\output\06-eval-archive\_work\' -Force
+Copy-Item '<技能目录>\assets\validate_stage6.py' '.\output\06-eval-archive\_work\' -Force
 
-& $py '.\output\_stage6\stage6_collect.py'   # 1) 采集计算
-& $py '.\output\_stage6\stage6_render.py'    # 2) 渲染 xlsx 与归档清单
+& $py '.\output\06-eval-archive\_work\stage6_collect.py'   # 1) 采集计算
+& $py '.\output\06-eval-archive\_work\stage6_render.py'    # 2) 渲染 xlsx 与归档清单
 # 3) 按第 7 节写 project_evaluation_report.md（只从 eval_data.json 抄数）
-& $py '.\output\_stage6\validate_stage6.py'  # 4) 只读校验
+& $py '.\output\06-eval-archive\_work\validate_stage6.py'  # 4) 只读校验
 ```
 
-- 依赖 `openpyxl`；脚本只读上游、只写 `./output/_stage6/` 与三份输出。
+- 依赖 `openpyxl`；脚本只读上游、只写 `./output/06-eval-archive/_work/` 与三份输出。
 - 脚本中 `EXPECTED`（17 项）是归档范围唯一来源；改动必须同步 §6.1 与 M-14。
 - 不得改输出列名/列序；字段不足时按 `待统计` 降级，不得 0 填充。
 
@@ -597,7 +597,7 @@ Copy-Item '<技能目录>\assets\validate_stage6.py' '.\output\_stage6\' -Force
 7. 无“验收通过/项目合格/安全合规”等越权表述。
 
 ```python
-# ./output/_stage6/validate_stage6.py
+# ./output/06-eval-archive/_work/validate_stage6.py
 import hashlib, json, re
 from pathlib import Path
 from openpyxl import load_workbook
@@ -621,16 +621,16 @@ def main():
         p = OUT / name
         check(p.exists() and p.stat().st_size > 0, f"缺少输出：{name}")
 
-    data = json.loads((OUT / "_stage6" / "eval_data.json").read_text(encoding="utf-8"))
+    data = json.loads((OUT / "06-eval-archive" / "_work" / "eval_data.json").read_text(encoding="utf-8"))
     payload = {k: v for k, v in data.items() if k != "fingerprint"}
     fp = hashlib.sha256(json.dumps(payload, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
     check(fp == data.get("fingerprint"), "eval_data 指纹不匹配（生成后被改过）")
 
-    report = (OUT / "project_evaluation_report.md").read_text(encoding="utf-8")
+    report = (OUT / "06-eval-archive" / "project_evaluation_report.md").read_text(encoding="utf-8")
     check(f"数据指纹：{fp[:16]}" in report, "报告缺少数据指纹或指纹不一致")
     check(not re.search(r"验收通过|项目合格|安全合规", report), "报告出现越权结论")
 
-    wb = load_workbook(OUT / "quality_metrics_summary.xlsx", data_only=True)
+    wb = load_workbook(OUT / "06-eval-archive" / "quality_metrics_summary.xlsx", data_only=True)
     for s in ("00-说明", "01-指标台账", "02-工时成本", "03-风险清单", "04-归档核对"):
         check(s in wb.sheetnames, f"缺少工作表：{s}")
     ws = wb["01-指标台账"]
@@ -640,7 +640,7 @@ def main():
     check(all(r[7] in ("已计算", "部分", "待统计", "未开展", "未执行", "不适用") for r in rows),
           "指标状态词非法")
 
-    archive = (OUT / "project_archive_list.md").read_text(encoding="utf-8")
+    archive = (OUT / "06-eval-archive" / "project_archive_list.md").read_text(encoding="utf-8")
     for item in data["archive"]["items"]:
         check(item["path"] in archive, f"归档清单缺条目：{item['path']}")
 
@@ -746,8 +746,8 @@ if __name__ == "__main__":
 
 | 序号 | 阶段 | 交付物 | 相对路径 | 版本/数据版本 | 生成时间 | 责任人 | SHA256 | 状态 | 备注 |
 |---|---|---|---|---|---|---|---|---|---|
-| 1 | 1 | 需求规格表 | output/requirements_spec.xlsx | 未标注 | 2026-11-14T10:12:00 | 需求工程师 | a1b2… | 存在 | — |
-| 13 | 4 | SCL 源文件 | output/src/ | — | — | PLC工程师 | — | 缺失 | 约定路径未发现 .scl |
+| 1 | 1 | 需求规格表 | output/01-requirements/requirements_spec.xlsx | 未标注 | 2026-11-14T10:12:00 | 需求工程师 | a1b2… | 存在 | — |
+| 13 | 4 | SCL 源文件 | output/04-scl/src/ | — | — | PLC工程师 | — | 缺失 | 约定路径未发现 .scl |
 
 ## 附录 E：常见错误
 

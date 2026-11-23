@@ -80,7 +80,7 @@ def read_scl(path: Path) -> str:
 
 def load_tag_map(project: Path) -> dict:
     tags = {}
-    csv_p = project / "output" / "plc_tag_map.csv"
+    csv_p = project / "output" / "03-electrical" / "plc_tag_map.csv"
     if csv_p.is_file():
         import csv
         with csv_p.open(encoding="utf-8-sig", newline="") as f:
@@ -94,7 +94,7 @@ def load_tag_map(project: Path) -> dict:
                     "polarity": (r.get("NcSemantic") or "").strip(),
                     "io_id": (r.get("IO-ID") or "").strip()}
         return tags
-    xlsx = project / "output" / "io_address.xlsx"
+    xlsx = project / "output" / "03-electrical" / "io_address.xlsx"
     if xlsx.is_file():
         try:
             from openpyxl import load_workbook
@@ -122,7 +122,7 @@ def main() -> int:
     a = ap.parse_args()
 
     project = Path(a.project).expanduser().resolve()
-    src_dir = project / "output" / "src"
+    src_dir = project / "output" / "04-scl" / "src"
     if not src_dir.is_dir():
         print("FAIL")
         print(f" - 找不到 {src_dir}")
